@@ -37,6 +37,7 @@ class Notification(models.Model):
     read_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
+        db_table = 'healthbridge_app_notification'  # Keep using the existing table name
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['user', '-created_at']),

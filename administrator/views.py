@@ -9,7 +9,7 @@ import logging
 
 from donations.models import Donation
 from requests.models import MedicineRequest
-from .models import Notification
+from notifications.models import Notification
 
 logger = logging.getLogger(__name__)
 

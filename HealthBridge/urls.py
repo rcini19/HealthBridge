@@ -17,16 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from healthbridge_app import views as hb_views
-from healthbridge_app import admin_views
-from healthbridge_app import notification_views
 
 urlpatterns = [
     # Admin Dashboard & Approvals (must come before Django admin!)
-    path('admin-dashboard/', admin_views.admin_dashboard, name='admin_dashboard'),
-    path('admin-dashboard/approve-donation/<int:donation_id>/', admin_views.approve_donation, name='approve_donation'),
-    path('admin-dashboard/reject-donation/<int:donation_id>/', admin_views.reject_donation, name='reject_donation'),
-    path('admin-dashboard/approve-request/<int:request_id>/', admin_views.approve_request, name='approve_request'),
-    path('admin-dashboard/reject-request/<int:request_id>/', admin_views.reject_request, name='reject_request'),
+    path('admin-dashboard/', include('administrator.urls')),
     
     # Django Admin
     path('admin/', admin.site.urls),
@@ -34,14 +28,8 @@ urlpatterns = [
     # Role selection (one-time for new users)
     path('select-role/', hb_views.select_role, name='select_role'),
     
-    # Notification API endpoints
-    path('api/notifications/', notification_views.get_notifications, name='get_notifications'),
-    path('api/notifications/unread-count/', notification_views.get_unread_count, name='get_unread_count'),
-    path('api/notifications/<int:notification_id>/read/', notification_views.mark_notification_read, name='mark_notification_read'),
-    path('api/notifications/mark-all-read/', notification_views.mark_all_read, name='mark_all_read'),
-    
-    # Notification page
-    path('notifications/', notification_views.notifications_page, name='notifications_page'),
+    # Notification endpoints
+    path('notifications/', include('notifications.urls')),
     
     # Modular apps
     path('', include('landing.urls')),  # Landing page at root

@@ -67,6 +67,8 @@ INSTALLED_APPS = [
     'profile',
     'donations',
     'requests',
+    'notifications',
+    'administrator',
 ]
 
 AUTH_USER_MODEL = 'healthbridge_app.CustomUser'
