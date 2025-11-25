@@ -204,6 +204,12 @@ def recipient_dashboard(request):
         status__in=[MedicineRequest.Status.PENDING, MedicineRequest.Status.MATCHED, MedicineRequest.Status.FULFILLED]
     ).order_by('-created_at')[:10]
     
+    # Medicines ready to claim (approved by admin, not yet claimed)
+    ready_to_claim = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED,
+        status__in=[MedicineRequest.Status.MATCHED, MedicineRequest.Status.FULFILLED]
+    ).select_related('matched_donation', 'matched_donation__donor').order_by('-reviewed_at')
+    
     # Claimed medicines
     claimed_medicines = user_requests.filter(
         status=MedicineRequest.Status.CLAIMED
@@ -218,6 +224,8 @@ def recipient_dashboard(request):
         'all_available_medicines': all_available_medicines,
         'available_medicines_count': available_medicines_count,
         'recent_requests': recent_requests,
+        'ready_to_claim': ready_to_claim,
+        'ready_to_claim_count': ready_to_claim.count(),
         'claimed_medicines': claimed_medicines,
     })
     

@@ -143,6 +143,66 @@
             </div>
         </div>
 
+        <!-- Medicines Ready to Claim -->
+        <div class="content-card content-card-wide">
+            <div class="card-header">
+                <h2 class="card-title">🎉 Medicines Ready to Claim</h2>
+                <span class="badge badge-success">{{ ready_to_claim_count }}</span>
+            </div>
+            <div class="card-body">
+                {% if ready_to_claim %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Quantity</th>
+                            <th>Donor</th>
+                            <th>Claim Date</th>
+                            <th>Approved</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in ready_to_claim %}
+                        <tr class="highlight-row">
+                            <td class="td-bold">{{ request.medicine_name }}</td>
+                            <td>{{ request.quantity }}</td>
+                            <td>
+                                {% if request.matched_donation and request.matched_donation.donor %}
+                                    {{ request.matched_donation.donor.get_full_name }}
+                                    <br><small style="color: #6b7280;">{{ request.matched_donation.donor.phone_number|default:"No phone" }}</small>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if request.claim_ready_date %}
+                                    <strong>{{ request.claim_ready_date|date:"M d, Y" }}</strong>
+                                {% else %}
+                                    <em style="color: #6b7280;">Contact clinic</em>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.reviewed_at|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge badge-success">✅ Approved</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="info-banner" style="margin-top: 15px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span>These medicines have been approved by admin and are ready for you to claim. Please visit the clinic on or after the claim date.</span>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p class="empty-text">No medicines ready to claim</p>
+                    <p class="empty-subtext">Approved medicines will appear here</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
         <!-- Claimed Medicines -->
         <div class="content-card">
             <div class="card-header">

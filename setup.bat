@@ -42,7 +42,7 @@ pip install --upgrade pip
 if exist requirements.txt (
     pip install -r requirements.txt
 ) else (
-    pip install django python-dotenv dj-database-url psycopg2-binary pillow supabase django-storages
+    pip install django==5.2.6 python-dotenv dj-database-url psycopg2-binary pillow supabase django-storages whitenoise gunicorn resend
 )
 echo.
 
@@ -60,11 +60,15 @@ if exist .env (
         echo # Database ^(Supabase PostgreSQL^)
         echo DATABASE_URL=postgresql://your-connection-string-here
         echo.
-        echo # Email Settings
-        echo EMAIL_HOST=smtp.gmail.com
-        echo EMAIL_PORT=587
-        echo EMAIL_HOST_USER=your-email@gmail.com
-        echo EMAIL_HOST_PASSWORD=your-app-password
+        echo # Email Settings ^(Resend - recommended for deployment^)
+        echo RESEND_API_KEY=re_your_api_key_here
+        echo RESEND_FROM_EMAIL=onboarding@resend.dev
+        echo.
+        echo # Email Settings ^(Alternative: SMTP - Gmail^)
+        echo # EMAIL_HOST=smtp.gmail.com
+        echo # EMAIL_PORT=587
+        echo # EMAIL_HOST_USER=your-email@gmail.com
+        echo # EMAIL_HOST_PASSWORD=your-app-password
         echo.
         echo # Supabase Storage Configuration
         echo SUPABASE_URL=https://your-project.supabase.co

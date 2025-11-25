@@ -11,6 +11,7 @@ class Notification(models.Model):
         DONATION_REJECTED = 'donation_rejected', 'Donation Rejected'
         REQUEST_APPROVED = 'request_approved', 'Request Approved'
         REQUEST_REJECTED = 'request_rejected', 'Request Rejected'
+        REQUEST_CREATED = 'request_created', 'Request Created'
         REQUEST_MATCHED = 'request_matched', 'Request Matched'
         MEDICINE_EXPIRING = 'medicine_expiring', 'Medicine Expiring Soon'
         SYSTEM = 'system', 'System Notification'

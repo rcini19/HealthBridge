@@ -1018,3 +1018,33 @@ textarea.form-input {
     flex: 1;
 }
 
+/* Medicines Ready to Claim Styles */
+.highlight-row {
+    background: #f0fdf4 !important;
+    border-left: 3px solid #10b981;
+}
+
+.highlight-row:hover {
+    background: #dcfce7 !important;
+}
+
+.info-banner {
+    background: #dbeafe;
+    border: 1px solid #3b82f6;
+    border-radius: 8px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1e40af;
+}
+
+.info-banner i {
+    font-size: 1.2rem;
+}
+
+.info-banner span {
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+

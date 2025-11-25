@@ -51,7 +51,7 @@ const csrftoken = getCookie('csrftoken');
 // Fetch unread count
 async function updateUnreadCount() {
     try {
-        const response = await fetch('/api/notifications/unread-count/');
+        const response = await fetch('/notifications/api/unread-count/');
         const data = await response.json();
         
         if (data.success && data.count > 0) {
@@ -70,7 +70,7 @@ async function updateUnreadCount() {
 // Load notifications
 async function loadNotifications() {
     try {
-        const response = await fetch('/api/notifications/');
+        const response = await fetch('/notifications/api/');
         const data = await response.json();
         
         if (data.success && data.notifications.length > 0) {
@@ -124,7 +124,7 @@ function renderNotifications(notifications) {
 // Mark notification as read
 async function markAsRead(notificationId) {
     try {
-        const response = await fetch(`/api/notifications/${notificationId}/read/`, {
+        const response = await fetch(`/notifications/api/${notificationId}/read/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrftoken,
@@ -154,7 +154,7 @@ markAllReadBtn.addEventListener('click', async (e) => {
     e.stopPropagation();
     
     try {
-        const response = await fetch('/api/notifications/mark-all-read/', {
+        const response = await fetch('/notifications/api/mark-all-read/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': csrftoken,

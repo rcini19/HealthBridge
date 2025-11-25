@@ -7,4 +7,6 @@ urlpatterns = [
     path('reject-donation/<int:donation_id>/', views.reject_donation, name='reject_donation'),
     path('approve-request/<int:request_id>/', views.approve_request, name='approve_request'),
     path('reject-request/<int:request_id>/', views.reject_request, name='reject_request'),
+    path('api/donation/<int:donation_id>/', views.get_donation_details, name='get_donation_details'),
+    path('api/request/<int:request_id>/', views.get_request_details, name='get_request_details'),
 ]
