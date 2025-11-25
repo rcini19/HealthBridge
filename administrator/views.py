@@ -9,7 +9,7 @@ import logging
 
 from donations.models import Donation
 from requests.models import MedicineRequest
-from .models import Notification
+from notifications.models import Notification
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def admin_dashboard(request):
     
     pending_requests = MedicineRequest.objects.filter(
         approval_status=MedicineRequest.ApprovalStatus.PENDING
-    ).select_related('recipient').order_by('-created_at')
+    ).select_related('recipient', 'matched_donation__donor').order_by('-created_at')
     
     # Get statistics
     total_donations = Donation.objects.count()
@@ -203,6 +203,29 @@ def approve_request(request, request_id):
                     request_id=medicine_request.id
                 )
             
+            # Notify donor that their medicine request has been approved and will be claimed
+            if medicine_request.matched_donation and medicine_request.matched_donation.donor:
+                recipient_name = medicine_request.recipient.get_full_name() or medicine_request.recipient.username
+                donor_message = (
+                    f'Good news! The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
+                    f'from {recipient_name} has been approved by admin. '
+                    f'The recipient will claim it'
+                )
+                if claim_date:
+                    donor_message += f' on {claim_date.strftime("%B %d, %Y")}.'
+                else:
+                    donor_message += ' soon.'
+                donor_message += f' Tracking Code: {medicine_request.tracking_code}'
+                
+                Notification.objects.create(
+                    user=medicine_request.matched_donation.donor,
+                    notification_type=Notification.Type.REQUEST_APPROVED,
+                    title='Request Approved - Medicine Will Be Claimed 📦',
+                    message=donor_message,
+                    request_id=medicine_request.id,
+                    donation_id=medicine_request.matched_donation.id
+                )
+            
             messages.success(request, f'Request for "{medicine_request.medicine_name}" has been approved!')
             logger.info(f'Admin {request.user.email} approved request {medicine_request.tracking_code}')
             
@@ -264,3 +287,91 @@ def reject_request(request, request_id):
                 return JsonResponse({'success': False, 'error': str(e)})
     
     return redirect('admin_dashboard')
+
+
+@user_passes_test(is_admin, login_url='/login/')
+def get_donation_details(request, donation_id):
+    """API endpoint to get full donation details"""
+    donation = get_object_or_404(Donation, id=donation_id)
+    
+    donor = donation.donor
+    data = {
+        'donation': {
+            'id': donation.id,
+            'name': donation.name,
+            'quantity': donation.quantity,
+            'expiry_date': donation.expiry_date.strftime('%B %d, %Y'),
+            'tracking_code': donation.tracking_code,
+            'status': donation.get_status_display(),
+            'approval_status': donation.get_approval_status_display(),
+            'donated_at': donation.donated_at.strftime('%B %d, %Y at %I:%M %p'),
+            'notes': donation.notes or 'No additional notes',
+            'image_url': donation.image.url if donation.image else None,
+            'days_until_expiry': donation.days_until_expiry,
+        },
+        'donor': {
+            'id': donor.id if donor else None,
+            'full_name': donor.get_full_name() if donor else 'Anonymous',
+            'username': donor.username if donor else 'N/A',
+            'email': donor.email if donor else 'N/A',
+            'phone': donor.phone_number or 'Not provided',
+            'address': donor.address or 'Not provided',
+            'user_type': donor.get_user_type_display() if donor and donor.user_type else 'N/A',
+            'date_joined': donor.date_joined.strftime('%B %d, %Y') if donor else 'N/A',
+        }
+    }
+    
+    return JsonResponse(data)
+
+
+@user_passes_test(is_admin, login_url='/login/')
+def get_request_details(request, request_id):
+    """API endpoint to get full request details"""
+    medicine_request = get_object_or_404(MedicineRequest, id=request_id)
+    
+    recipient = medicine_request.recipient
+    matched_donation = medicine_request.matched_donation
+    
+    data = {
+        'request': {
+            'id': medicine_request.id,
+            'medicine_name': medicine_request.medicine_name,
+            'quantity': medicine_request.quantity,
+            'urgency': medicine_request.get_urgency_display(),
+            'urgency_class': medicine_request.urgency,
+            'reason': medicine_request.reason or 'No reason provided',
+            'notes': medicine_request.notes or 'No additional notes',
+            'tracking_code': medicine_request.tracking_code,
+            'status': medicine_request.get_status_display(),
+            'approval_status': medicine_request.get_approval_status_display(),
+            'created_at': medicine_request.created_at.strftime('%B %d, %Y at %I:%M %p'),
+            'claim_ready_date': medicine_request.claim_ready_date.strftime('%B %d, %Y') if medicine_request.claim_ready_date else 'Not set',
+            'days_since_request': medicine_request.days_since_request,
+        },
+        'recipient': {
+            'id': recipient.id,
+            'full_name': recipient.get_full_name(),
+            'username': recipient.username,
+            'email': recipient.email,
+            'phone': recipient.phone_number or 'Not provided',
+            'address': recipient.address or 'Not provided',
+            'user_type': recipient.get_user_type_display() if recipient.user_type else 'N/A',
+            'date_joined': recipient.date_joined.strftime('%B %d, %Y'),
+        },
+        'matched_donation': None
+    }
+    
+    if matched_donation:
+        donor = matched_donation.donor
+        data['matched_donation'] = {
+            'id': matched_donation.id,
+            'name': matched_donation.name,
+            'quantity': matched_donation.quantity,
+            'tracking_code': matched_donation.tracking_code,
+            'image_url': matched_donation.image.url if matched_donation.image else None,
+            'donor_name': donor.get_full_name() if donor else 'Anonymous',
+            'donor_email': donor.email if donor else 'N/A',
+            'donor_phone': donor.phone_number if donor else 'Not provided',
+        }
+    
+    return JsonResponse(data)

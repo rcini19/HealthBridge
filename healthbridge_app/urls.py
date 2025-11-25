@@ -3,7 +3,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 from . import views
-from . import notification_views
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -14,15 +13,6 @@ urlpatterns = [
 
     # API endpoints
     path("api/medicine-autocomplete/", views.medicine_autocomplete, name="medicine_autocomplete"),
-    
-    # Notification API endpoints
-    path("api/notifications/", notification_views.get_notifications, name="get_notifications"),
-    path("api/notifications/unread-count/", notification_views.get_unread_count, name="get_unread_count"),
-    path("api/notifications/<int:notification_id>/read/", notification_views.mark_notification_read, name="mark_notification_read"),
-    path("api/notifications/mark-all-read/", notification_views.mark_all_read, name="mark_all_read"),
-    
-    # Notification page
-    path("notifications/", notification_views.notifications_page, name="notifications_page"),
 
     path("search/", views.medicine_search, name="medicine_search"),
     path("donate/", views.donate_medicine, name="donate_medicine"),

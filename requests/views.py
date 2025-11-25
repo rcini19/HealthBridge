@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods
 
 from .models import MedicineRequest
 from donations.models import Donation
+from notifications.models import Notification
 
 
 @login_required
@@ -80,6 +81,31 @@ def create_request(request):
         )
         
         print(f"Request created: ID={medicine_request.id}, Status={medicine_request.status}, Matched Donation={medicine_request.matched_donation_id}")
+        
+        # Notify donor that someone has requested their medicine
+        if matched_donation and matched_donation.donor:
+            recipient_name = request.user.get_full_name() or request.user.username
+            recipient_profile = {
+                'name': recipient_name,
+                'email': request.user.email,
+                'username': request.user.username,
+            }
+            
+            Notification.objects.create(
+                user=matched_donation.donor,
+                notification_type=Notification.Type.REQUEST_CREATED,
+                title='Medicine Request Received! 📬',
+                message=(
+                    f'{recipient_name} has requested {quantity}x {medicine_name} from your donation. '
+                    f'The request is pending admin approval. '
+                    f'Recipient: {recipient_profile["name"]} (@{recipient_profile["username"]}) | '
+                    f'Contact: {recipient_profile["email"]} | '
+                    f'Urgency: {urgency.upper()} | '
+                    f'Tracking Code: {medicine_request.tracking_code}'
+                ),
+                request_id=medicine_request.id
+            )
+            print(f"Notification sent to donor: {matched_donation.donor.username}")
         
         return JsonResponse({
             'success': True,

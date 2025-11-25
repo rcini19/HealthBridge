@@ -22,7 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file (must be loaded BEFORE using os.getenv)
 env_path = BASE_DIR / '.env'
 load_dotenv(env_path)
-print(f"Loading .env from: {env_path}")  # Debug line
+# Only print in the main process, not the autoreloader
+if os.environ.get('RUN_MAIN') == 'true':
+    print(f"Loading .env from: {env_path}")
 
 
 # Quick-start development settings - unsuitable for production
@@ -67,6 +69,8 @@ INSTALLED_APPS = [
     'profile',
     'donations',
     'requests',
+    'notifications',
+    'administrator',
 ]
 
 AUTH_USER_MODEL = 'healthbridge_app.CustomUser'
@@ -207,25 +211,14 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Email configuration
-# Try Mailgun first (Render's recommended free option)
-if os.getenv('MAILGUN_SMTP_LOGIN'):
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.mailgun.org'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.getenv('MAILGUN_SMTP_LOGIN')
-    EMAIL_HOST_PASSWORD = os.getenv('MAILGUN_SMTP_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.getenv('MAILGUN_SMTP_LOGIN', 'noreply@healthbridge.app')
-# Try SendGrid (alternative free option - 100 emails/day)
-elif os.getenv('SENDGRID_API_KEY'):
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = 'smtp.sendgrid.net'
-    EMAIL_PORT = 587
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = 'apikey'
-    EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')
-    DEFAULT_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL', 'noreply@healthbridge.app')
-# Gmail configuration (works locally and on Render with proper setup)
+# Resend (HTTP API - works on Render free tier, bypasses SMTP port blocking)
+if os.getenv('RESEND_API_KEY'):
+    EMAIL_BACKEND = 'HealthBridge.resend_backend.ResendEmailBackend'
+    RESEND_API_KEY = os.getenv('RESEND_API_KEY')
+    DEFAULT_FROM_EMAIL = os.getenv('RESEND_FROM_EMAIL', 'onboarding@resend.dev')
+    if os.environ.get('RUN_MAIN') == 'true':
+        print("✓ Using Resend email backend (HTTP API)")
+# Gmail configuration (works locally with app passwords)
 elif os.getenv('EMAIL_HOST_USER') and os.getenv('EMAIL_HOST_PASSWORD'):
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
@@ -235,6 +228,8 @@ elif os.getenv('EMAIL_HOST_USER') and os.getenv('EMAIL_HOST_PASSWORD'):
     EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
     DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+    if os.environ.get('RUN_MAIN') == 'true':
+        print("✓ Using Gmail SMTP backend")
 else:
     # Fallback - use console backend if no credentials configured
     # This prevents crashes but emails won't actually send
@@ -244,7 +239,8 @@ else:
     EMAIL_HOST_USER = ''
     EMAIL_HOST_PASSWORD = ''
     DEFAULT_FROM_EMAIL = 'noreply@healthbridge.app'
-    print("WARNING: No email credentials configured. Using console backend.")
+    if os.environ.get('RUN_MAIN') == 'true':
+        print("⚠ WARNING: No email credentials configured. Using console backend.")
 
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
     

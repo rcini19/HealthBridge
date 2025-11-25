@@ -11,6 +11,7 @@ class Notification(models.Model):
         DONATION_REJECTED = 'donation_rejected', 'Donation Rejected'
         REQUEST_APPROVED = 'request_approved', 'Request Approved'
         REQUEST_REJECTED = 'request_rejected', 'Request Rejected'
+        REQUEST_CREATED = 'request_created', 'Request Created'
         REQUEST_MATCHED = 'request_matched', 'Request Matched'
         MEDICINE_EXPIRING = 'medicine_expiring', 'Medicine Expiring Soon'
         SYSTEM = 'system', 'System Notification'
@@ -37,6 +38,7 @@ class Notification(models.Model):
     read_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
+        db_table = 'healthbridge_app_notification'  # Keep using the existing table name
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['user', '-created_at']),

@@ -51,22 +51,22 @@
                 <div class="stat-card-label">Awaiting approval</div>
             </div>
 
-            <div class="stat-card success">
+            <div class="stat-card success clickable" onclick="showApprovedDonationsModal()" title="Click to view approved donations">
                 <div class="stat-card-header">
                     <h3>Approved Donations</h3>
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stat-card-value">{{ approved_donations }}</div>
-                <div class="stat-card-label">Total approved</div>
+                <div class="stat-card-label">Total approved (Click to view)</div>
             </div>
 
-            <div class="stat-card success">
+            <div class="stat-card success clickable" onclick="showApprovedRequestsModal()" title="Click to view approved requests">
                 <div class="stat-card-header">
                     <h3>Approved Requests</h3>
                     <i class="fas fa-thumbs-up"></i>
                 </div>
                 <div class="stat-card-value">{{ approved_requests }}</div>
-                <div class="stat-card-label">Total approved</div>
+                <div class="stat-card-label">Total approved (Click to view)</div>
             </div>
         </div>
 
@@ -98,6 +98,9 @@
                         <td>{{ donation.donated_at|date:"M d, Y" }}</td>
                         <td>
                             <div class="btn-group">
+                                <button class="btn btn-info" onclick="viewDonationDetails({{ donation.id }})" title="View full details">
+                                    <i class="fas fa-eye"></i> VIEW FULL DETAILS
+                                </button>
                                 <button class="btn btn-approve" onclick="approveDonation({{ donation.id }})">
                                     <i class="fas fa-check"></i> Approve
                                 </button>
@@ -146,6 +149,9 @@
                         <td>{{ request.created_at|date:"M d, Y" }}</td>
                         <td>
                             <div class="btn-group">
+                                <button class="btn btn-info" onclick="viewRequestDetails({{ request.id }})" title="View full details">
+                                    <i class="fas fa-eye"></i> VIEW FULL DETAILS
+                                </button>
                                 <button class="btn btn-approve" onclick="showApproveRequestModal({{ request.id }}, '{{ request.medicine_name }}')">
                                     <i class="fas fa-check"></i> Approve
                                 </button>
@@ -225,6 +231,126 @@
                     <button type="submit" class="btn btn-reject">Reject Request</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- View Donation Details Modal -->
+    <div id="viewDonationModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-pills"></i> Donation Details</h3>
+                <button class="modal-close" onclick="closeModal('viewDonationModal')">&times;</button>
+            </div>
+            <div id="donationDetailsContent" class="details-content">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Request Details Modal -->
+    <div id="viewRequestModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-hand-holding-medical"></i> Request Details</h3>
+                <button class="modal-close" onclick="closeModal('viewRequestModal')">&times;</button>
+            </div>
+            <div id="requestDetailsContent" class="details-content">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Donations List Modal -->
+    <div id="approvedDonationsModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-check-circle"></i> Approved Donations</h3>
+                <button class="modal-close" onclick="closeModal('approvedDonationsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                {% if recent_approved_donations %}
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Donor</th>
+                            <th>Quantity</th>
+                            <th>Expiry Date</th>
+                            <th>Approved</th>
+                            <th>Reviewed By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for donation in recent_approved_donations %}
+                        <tr>
+                            <td><strong>{{ donation.name }}</strong></td>
+                            <td>{{ donation.donor.get_full_name }}</td>
+                            <td>{{ donation.quantity }}</td>
+                            <td>{{ donation.expiry_date|date:"M d, Y" }}</td>
+                            <td>{{ donation.reviewed_at|date:"M d, Y" }}</td>
+                            <td>{{ donation.reviewed_by.get_full_name|default:"N/A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-double"></i>
+                    <p>No approved donations yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Requests List Modal -->
+    <div id="approvedRequestsModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-thumbs-up"></i> Approved Requests</h3>
+                <button class="modal-close" onclick="closeModal('approvedRequestsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                {% if recent_approved_requests %}
+                <table class="modal-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Recipient</th>
+                            <th>Quantity</th>
+                            <th>Urgency</th>
+                            <th>Claim Date</th>
+                            <th>Approved</th>
+                            <th>Reviewed By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in recent_approved_requests %}
+                        <tr>
+                            <td><strong>{{ request.medicine_name }}</strong></td>
+                            <td>{{ request.recipient.get_full_name }}</td>
+                            <td>{{ request.quantity }}</td>
+                            <td><span class="badge {{ request.urgency }}">{{ request.get_urgency_display }}</span></td>
+                            <td>
+                                {% if request.claim_ready_date %}
+                                    {{ request.claim_ready_date|date:"M d, Y" }}
+                                {% else %}
+                                    <em>Not set</em>
+                                {% endif %}
+                            </td>
+                            <td>{{ request.reviewed_at|date:"M d, Y" }}</td>
+                            <td>{{ request.reviewed_by.get_full_name|default:"N/A" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-double"></i>
+                    <p>No approved requests yet</p>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 
