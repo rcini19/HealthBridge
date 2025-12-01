@@ -53,6 +53,27 @@
     margin-bottom: 1.5rem;
 }
 
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #ffffff;
+    color: #1e3a8a;
+    border: 1px solid #e6eefc;
+    padding: 0.35rem 0.7rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(30,58,138,0.06);
+    transition: all 0.12s ease-in-out;
+}
+
+.back-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(30,58,138,0.08);
+}
+
 .mark-all-btn {
     background: #3b82f6;
     color: white;
@@ -126,6 +147,16 @@
 .notification-icon.rejected {
     background: #fee2e2;
     color: #dc2626;
+}
+
+.notification-icon.info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.notification-icon.warning {
+    background: #fff7ed;
+    color: #c2410c;
 }
 
 .notification-details {
@@ -239,7 +270,10 @@
 
     {% if notifications %}
     <div class="notifications-actions">
-        <h2 style="margin: 0; color: #1f2937;">All Notifications</h2>
+        <div style="display:flex; align-items:center; gap:1rem;">
+            <a href="{% url 'dashboard:dashboard' %}" class="back-btn"><i class="fas fa-arrow-left" aria-hidden="true"></i> back</a>
+            <h2 style="margin: 0; color: #1f2937;">All Notifications</h2>
+        </div>
         {% if unread_count > 0 %}
         <button class="mark-all-btn" id="markAllReadBtn">
             Mark All as Read
@@ -253,9 +287,28 @@
              data-id="{{ notification.id }}"
              onclick="markAsRead({{ notification.id }})">
             <div class="notification-card-content">
-                <div class="notification-icon {% if 'APPROVED' in notification.notification_type %}approved{% else %}rejected{% endif %}">
-                    {% if 'APPROVED' in notification.notification_type %}✅{% else %}❌{% endif %}
+                {# Choose icon and color based on notification type keywords #}
+                {% if 'APPROVED' in notification.notification_type %}
+                <div class="notification-icon approved">
+                    <i class="fas fa-check" aria-hidden="true"></i>
                 </div>
+                {% elif 'RECEIVED' in notification.notification_type or 'REQUEST' in notification.notification_type %}
+                <div class="notification-icon info">
+                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                </div>
+                {% elif 'REJECT' in notification.notification_type %}
+                <div class="notification-icon rejected">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </div>
+                {% elif 'DONATION' in notification.notification_type %}
+                <div class="notification-icon approved">
+                    <i class="fas fa-hand-holding-heart" aria-hidden="true"></i>
+                </div>
+                {% else %}
+                <div class="notification-icon info">
+                    <i class="fas fa-bell" aria-hidden="true"></i>
+                </div>
+                {% endif %}
                 <div class="notification-details">
                     <div class="notification-title">
                         {{ notification.title }}
