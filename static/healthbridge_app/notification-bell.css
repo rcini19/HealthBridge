@@ -152,6 +152,16 @@
     color: #dc2626;
 }
 
+.notification-icon.info {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.notification-icon.warning {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
 .notification-content {
     display: flex;
     align-items: start;

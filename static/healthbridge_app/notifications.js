@@ -97,16 +97,33 @@ async function loadNotifications() {
 // Render notifications
 function renderNotifications(notifications) {
     const notificationsHTML = notifications.map(notif => {
-        const isApproved = notif.type.includes('APPROVED');
-        const iconClass = isApproved ? 'approved' : 'rejected';
-        const icon = isApproved ? '✅' : '❌';
         const unreadClass = notif.is_read ? '' : 'unread';
-        
+
+        // Determine icon and style class based on notification type keywords
+        let iconClass = 'info';
+        let iconHTML = '<i class="fas fa-bell" aria-hidden="true"></i>';
+
+        // Support both server keys: `type` and `notification_type`
+        const t = ((notif.type || notif.notification_type) || '').toUpperCase();
+        if (t.includes('APPROVED')) {
+            iconClass = 'approved';
+            iconHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+        } else if (t.includes('RECEIVED') || t.includes('REQUEST')) {
+            iconClass = 'info';
+            iconHTML = '<i class="fas fa-inbox" aria-hidden="true"></i>';
+        } else if (t.includes('REJECT') || t.includes('REJECTION')) {
+            iconClass = 'rejected';
+            iconHTML = '<i class="fas fa-times" aria-hidden="true"></i>';
+        } else if (t.includes('DONATION')) {
+            iconClass = 'approved';
+            iconHTML = '<i class="fas fa-hand-holding-heart" aria-hidden="true"></i>';
+        }
+
         return `
             <div class="notification-item ${unreadClass}" data-id="${notif.id}" onclick="markAsRead(${notif.id})">
                 <div class="notification-content">
                     <div class="notification-icon ${iconClass}">
-                        ${icon}
+                        ${iconHTML}
                     </div>
                     <div class="notification-text">
                         <div class="notification-title">${notif.title}</div>
