@@ -123,13 +123,19 @@ if not database_url:
         "Please set it in your .env file with your Supabase connection string."
     )
 
+# Parse the database URL
+db_config = dj_database_url.parse(database_url)
+
+# Add connection pooling and health checks
+db_config['CONN_MAX_AGE'] = 600  # Keep connections alive for 10 minutes
+db_config['CONN_HEALTH_CHECKS'] = True  # Verify connection health
+
+# Debug print (only in main process)
+if os.environ.get('RUN_MAIN') == 'true':
+    print(f"Database configuration parsed: {db_config.get('NAME', 'NO NAME FOUND')}")
+
 DATABASES = {
-    "default": dj_database_url.config(
-        default=database_url,
-        conn_max_age=600,  # Keep connections alive for 10 minutes
-        conn_health_checks=True,  # Verify connection health
-        ssl_require=True,  # Require SSL for Supabase
-    )
+    "default": db_config
 }
 
 

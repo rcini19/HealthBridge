@@ -11,6 +11,17 @@ function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('show');
 }
 
+function openGuidelinesModal() {
+    console.log('Opening guidelines modal...');
+    const modal = document.getElementById('guidelinesModal');
+    console.log('Modal element:', modal);
+    if (modal) {
+        showModal('guidelinesModal');
+    } else {
+        console.error('Guidelines modal not found!');
+    }
+}
+
 function approveDonation(donationId) {
     if (confirm('Are you sure you want to approve this donation?')) {
         const form = document.createElement('form');
