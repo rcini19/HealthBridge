@@ -24,6 +24,9 @@
             <button class="btn-secondary" onclick="openHistoryModal()">
                 My Requests
             </button>
+            <button class="btn-secondary" onclick="openGuidelinesModal()" style="background: #0ea5e9;">
+                📋 Request Guidelines
+            </button>
         </div>
     </div>
 
@@ -399,6 +402,91 @@
 <!-- Delete Confirmation Modal -->
 {% include 'requests/confirm_delete_request.html' %}
 
+<!-- Request Guidelines Modal -->
+<div class="modal-overlay" id="guidelinesModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 class="modal-title">📋 Request Guidelines</h2>
+      <button class="modal-close" onclick="closeGuidelinesModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="max-height: 500px; overflow-y: auto; padding: 10px;">
+        <p style="margin-bottom: 20px; color: #64748b;">Please follow these guidelines when requesting medicines to ensure approval:</p>
+        
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">✅ Valid Request Requirements</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Only request medicines you genuinely need for treatment</li>
+            <li>Provide accurate reason for medicine request</li>
+            <li>Request appropriate quantities based on your actual need</li>
+            <li>Verify medicine name and dosage match your prescription</li>
+            <li>Check medicine availability before making a request</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">📸 Prescription & Documentation</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Upload valid prescription if requesting prescription medicines</li>
+            <li>Ensure prescription is current and not expired</li>
+            <li>Prescription must clearly show medicine name and dosage</li>
+            <li>Provide any additional medical documents if required</li>
+            <li>Keep original documents for verification if requested</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">📝 Request Information</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Clearly state your medical condition or reason for request</li>
+            <li>Specify exact quantity needed and duration of treatment</li>
+            <li>Provide contact information for delivery coordination</li>
+            <li>Be responsive to administrator questions or requests</li>
+            <li>Update your request status promptly</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">🚫 Prohibited Actions</h3>
+          <ul style="margin-left: 20px; color: #dc2626; line-height: 1.8;">
+            <li>Do not request medicines for resale or unauthorized distribution</li>
+            <li>Do not make duplicate requests for the same medicine</li>
+            <li>Do not request excessive quantities beyond medical need</li>
+            <li>Do not provide false medical information</li>
+            <li>Do not claim medicines you don't intend to pick up</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">🤝 Claiming & Delivery</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Respond promptly when your request is approved</li>
+            <li>Coordinate pickup/delivery within the specified timeframe</li>
+            <li>Verify medicine details upon receiving</li>
+            <li>Confirm delivery after receiving medicines</li>
+            <li>Report any issues or discrepancies immediately</li>
+          </ul>
+        </div>
+
+        <div style="background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">ℹ️ Important Notes</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>All requests are reviewed by administrators before approval</li>
+            <li>Requests not meeting guidelines will be rejected with feedback</li>
+            <li>Priority given to urgent medical needs</li>
+            <li>Abuse of the system may result in account suspension</li>
+            <li>This is a community service - use it responsibly</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-primary" onclick="closeGuidelinesModal()">I Understand</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // Notification System
 function showNotification(message, type = 'success') {
@@ -534,6 +622,14 @@ function openRequestDetailsModal() {
 
 function closeRequestDetailsModal() {
   document.getElementById('requestDetailsModal').classList.remove('active');
+}
+
+function openGuidelinesModal() {
+  document.getElementById('guidelinesModal').classList.add('active');
+}
+
+function closeGuidelinesModal() {
+  document.getElementById('guidelinesModal').classList.remove('active');
 }
 
 function showRequestDetails(requestId) {

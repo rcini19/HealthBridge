@@ -17,6 +17,7 @@
         </div>
         <ul class="sidebar-menu">
             <li><a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="javascript:void(0);" onclick="openGuidelinesModal()"><i class="fas fa-book"></i> Guidelines</a></li>
             <li><a href="{% url 'landing:home' %}"><i class="fas fa-home"></i> Main Site</a></li>
             <li><a href="/admin/"><i class="fas fa-cog"></i> Django Admin</a></li>
             <li><a href="{% url 'login:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
@@ -354,6 +355,159 @@
         </div>
     </div>
 
+    <!-- Guidelines Modal -->
+    <div id="guidelinesModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-book"></i> Platform Guidelines for Review</h3>
+                <button class="modal-close" onclick="closeModal('guidelinesModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+                <p style="margin-bottom: 20px; color: #64748b;">
+                    As an administrator, familiarize yourself with these guidelines to ensure consistent and fair review of donations and requests.
+                </p>
+
+                <!-- Donation Guidelines Section -->
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #2563eb;">
+                    <h2 style="color: #1e40af; margin-bottom: 15px; font-size: 1.5rem;">
+                        <i class="fas fa-hand-holding-heart"></i> Donation Guidelines
+                    </h2>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #0f172a; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i> Medicine Quality Requirements
+                        </h3>
+                        <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+                            <li>Medicine must be in its original, unopened packaging</li>
+                            <li>No expired or near-expiry (within 30 days) medicines accepted</li>
+                            <li>Clear, legible labels showing medicine name, dosage, and expiry date</li>
+                            <li>No damaged, torn, or tampered packaging</li>
+                            <li>Prescription medicines must include proper documentation if required</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #0f172a; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-camera" style="color: #10b981;"></i> Photo Requirements
+                        </h3>
+                        <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+                            <li>Upload clear, well-lit photos of the medicine</li>
+                            <li>Show the complete packaging including expiry date</li>
+                            <li>Include multiple angles if necessary</li>
+                            <li>Ensure all text on packaging is readable in photos</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #0f172a; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-file-alt" style="color: #10b981;"></i> Information Accuracy
+                        </h3>
+                        <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+                            <li>Provide accurate medicine name and generic name</li>
+                            <li>Enter correct dosage strength (e.g., 500mg, 10ml)</li>
+                            <li>Specify exact quantity available</li>
+                            <li>Verify expiry date is accurate and clearly visible</li>
+                            <li>Include manufacturer name if possible</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: #dc2626; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-ban" style="color: #dc2626;"></i> Prohibited Items
+                        </h3>
+                        <ul style="margin-left: 20px; color: #dc2626; line-height: 1.8;">
+                            <li>Controlled substances without proper authorization</li>
+                            <li>Opened or partially used medicines</li>
+                            <li>Medicines stored improperly (not at recommended temperature)</li>
+                            <li>Counterfeit or unverified medicines</li>
+                            <li>Medicines without clear labeling</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Request Guidelines Section -->
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #059669;">
+                    <h2 style="color: #065f46; margin-bottom: 15px; font-size: 1.5rem;">
+                        <i class="fas fa-hand-holding-medical"></i> Request Guidelines
+                    </h2>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #0f172a; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i> Valid Request Requirements
+                        </h3>
+                        <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+                            <li>Only request medicines genuinely needed for treatment</li>
+                            <li>Provide accurate reason for medicine request</li>
+                            <li>Request appropriate quantities based on actual need</li>
+                            <li>Verify medicine name and dosage match prescription</li>
+                            <li>Check medicine availability before making a request</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #0f172a; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-file-prescription" style="color: #10b981;"></i> Prescription & Documentation
+                        </h3>
+                        <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+                            <li>Upload valid prescription if requesting prescription medicines</li>
+                            <li>Ensure prescription is current and not expired</li>
+                            <li>Prescription must clearly show medicine name and dosage</li>
+                            <li>Provide any additional medical documents if required</li>
+                            <li>Keep original documents for verification if requested</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h3 style="color: #0f172a; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-info-circle" style="color: #10b981;"></i> Request Information
+                        </h3>
+                        <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+                            <li>Clearly state medical condition or reason for request</li>
+                            <li>Specify exact quantity needed and duration of treatment</li>
+                            <li>Provide contact information for delivery coordination</li>
+                            <li>Be responsive to administrator questions or requests</li>
+                            <li>Update request status promptly</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <h3 style="color: #dc2626; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-times-circle" style="color: #dc2626;"></i> Prohibited Actions
+                        </h3>
+                        <ul style="margin-left: 20px; color: #dc2626; line-height: 1.8;">
+                            <li>Requesting medicines for resale or unauthorized distribution</li>
+                            <li>Making duplicate requests for the same medicine</li>
+                            <li>Requesting excessive quantities beyond medical need</li>
+                            <li>Providing false medical information</li>
+                            <li>Claiming medicines without intent to pick up</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Admin Review Standards -->
+                <div style="background: #fef3c7; padding: 20px; border-radius: 12px; border-left: 4px solid #f59e0b;">
+                    <h2 style="color: #92400e; margin-bottom: 15px; font-size: 1.5rem;">
+                        <i class="fas fa-user-shield"></i> Administrator Review Standards
+                    </h2>
+                    <ul style="margin-left: 20px; color: #78350f; line-height: 1.8;">
+                        <li><strong>Be thorough:</strong> Review all photos, documents, and information provided</li>
+                        <li><strong>Be fair:</strong> Apply guidelines consistently to all users</li>
+                        <li><strong>Be clear:</strong> Provide specific reasons when rejecting submissions</li>
+                        <li><strong>Be prompt:</strong> Review submissions in a timely manner</li>
+                        <li><strong>Be vigilant:</strong> Watch for suspicious patterns or fraudulent activity</li>
+                        <li><strong>Be helpful:</strong> Guide users to correct minor issues when possible</li>
+                        <li><strong>Document decisions:</strong> Keep clear records of approval/rejection reasons</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-actions" style="margin-top: 20px; padding: 15px; background: #f8fafc; border-top: 1px solid #e5e7eb;">
+                <button class="btn btn-primary" onclick="closeModal('guidelinesModal')" style="width: 100%;">
+                    <i class="fas fa-check"></i> Close Guidelines
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Messages -->
     <div class="messages">
         {% if messages %}
@@ -366,5 +520,19 @@
     </div>
 
     <script src="{% static 'healthbridge_app/admin-dashboard.js' %}"></script>
+    <script>
+        // Ensure the function is available globally
+        function openGuidelinesModal() {
+            console.log('Function called!');
+            const modal = document.getElementById('guidelinesModal');
+            console.log('Modal found:', modal);
+            if (modal) {
+                modal.classList.add('show');
+                console.log('Show class added');
+            } else {
+                console.error('Modal element not found!');
+            }
+        }
+    </script>
 </body>
 </html>

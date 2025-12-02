@@ -25,6 +25,9 @@
             <button class="btn-secondary" onclick="openHistoryModal()">
                 My Donations
             </button>
+            <button class="btn-secondary" onclick="openGuidelinesModal()" style="background: #0ea5e9;">
+                📋 Donation Guidelines
+            </button>
         </div>
     </div>
 
@@ -193,7 +196,33 @@
         
         <div class="form-group">
           <label class="form-label">Medicine Name</label>
-          <input type="text" name="name" class="form-input" placeholder="Enter medicine name" required>
+          <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196F3; padding: 12px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9em;">
+            <div style="font-weight: 600; color: #1976D2; margin-bottom: 8px; display: flex; align-items: center;">
+              <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
+              Medicine Naming Format
+            </div>
+            <div style="color: #0D47A1; line-height: 1.6;">
+              Please use format: <strong>Medicine Name + Dosage Strength</strong>
+              <div style="margin-top: 8px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 6px;">
+                <div style="color: #2e7d32; margin-bottom: 4px;">
+                  <i class="fas fa-check-circle"></i> <strong>Correct Examples:</strong>
+                </div>
+                <div style="margin-left: 24px; color: #1b5e20;">
+                  • Paracetamol 500mg<br>
+                  • Amoxicillin 250mg Capsules<br>
+                  • Metformin 850mg Tablets
+                </div>
+                <div style="color: #c62828; margin-top: 8px; margin-bottom: 4px;">
+                  <i class="fas fa-times-circle"></i> <strong>Avoid:</strong>
+                </div>
+                <div style="margin-left: 24px; color: #b71c1c;">
+                  • Just "Paracetamol" (missing dosage)<br>
+                  • "Pain reliever" (not specific enough)
+                </div>
+              </div>
+            </div>
+          </div>
+          <input type="text" name="name" class="form-input" placeholder="e.g., Paracetamol 500mg" required>
         </div>
 
         <div class="form-row">
@@ -318,6 +347,78 @@
       <div class="modal-actions">
         <button class="btn-danger" id="confirmDeleteBtn">Delete</button>
         <button class="btn-cancel" onclick="closeDeleteConfirmModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Donation Guidelines Modal -->
+<div class="modal-overlay" id="guidelinesModal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h2 class="modal-title">📋 Donation Guidelines</h2>
+      <button class="modal-close" onclick="closeGuidelinesModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="max-height: 500px; overflow-y: auto; padding: 10px;">
+        <p style="margin-bottom: 20px; color: #64748b;">Please follow these guidelines to ensure your donations are approved and distributed properly:</p>
+        
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">✅ Medicine Quality Requirements</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Medicine must be in its original, unopened packaging</li>
+            <li>No expired or near-expiry (within 30 days) medicines accepted</li>
+            <li>Clear, legible labels showing medicine name, dosage, and expiry date</li>
+            <li>No damaged, torn, or tampered packaging</li>
+            <li>Prescription medicines must include proper documentation if required</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">📸 Photo Requirements</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Upload clear, well-lit photos of the medicine</li>
+            <li>Show the complete packaging including expiry date</li>
+            <li>Include multiple angles if necessary</li>
+            <li>Ensure all text on packaging is readable in photos</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">📝 Information Accuracy</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>Provide accurate medicine name and generic name</li>
+            <li>Enter correct dosage strength (e.g., 500mg, 10ml)</li>
+            <li>Specify exact quantity available</li>
+            <li>Verify expiry date is accurate and clearly visible</li>
+            <li>Include manufacturer name if possible</li>
+          </ul>
+        </div>
+
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">🚫 Prohibited Items</h3>
+          <ul style="margin-left: 20px; color: #dc2626; line-height: 1.8;">
+            <li>Controlled substances without proper authorization</li>
+            <li>Opened or partially used medicines</li>
+            <li>Medicines stored improperly (not at recommended temperature)</li>
+            <li>Counterfeit or unverified medicines</li>
+            <li>Medicines without clear labeling</li>
+          </ul>
+        </div>
+
+        <div style="background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+          <h3 style="color: #0f172a; margin-bottom: 10px;">ℹ️ Important Notes</h3>
+          <ul style="margin-left: 20px; color: #475569; line-height: 1.8;">
+            <li>All donations are reviewed by administrators before approval</li>
+            <li>Donations not meeting guidelines will be rejected with feedback</li>
+            <li>Your donation helps save lives - thank you for your contribution!</li>
+            <li>Keep donations safe and properly stored until delivery</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-primary" onclick="closeGuidelinesModal()">I Understand</button>
       </div>
     </div>
   </div>
@@ -596,6 +697,14 @@ function openDeleteConfirmModal() {
 
 function closeDeleteConfirmModal() {
   document.getElementById('deleteConfirmModal').classList.remove('active');
+}
+
+function openGuidelinesModal() {
+  document.getElementById('guidelinesModal').classList.add('active');
+}
+
+function closeGuidelinesModal() {
+  document.getElementById('guidelinesModal').classList.remove('active');
 }
 
 function deleteDonation(donationId) {
