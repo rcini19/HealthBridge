@@ -20,7 +20,7 @@ The system provides a user-friendly interface for both customers and administrat
 - **Backend:** Python (Django Framework)  
 - **Database:** Supabase (PostgreSQL)
 - **Monitoring:** Automated background service
-- **Email:** SMTP (Gmail/Outlook/Yahoo)
+- **Email:** Brevo API (recommended for production), Resend, or SMTP (Gmail/Outlook/Yahoo)
 
 ---
 
