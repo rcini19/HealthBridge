@@ -217,8 +217,15 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # Email configuration
+# Brevo (HTTP API - works on Render free tier, bypasses SMTP port blocking)
+if os.getenv('BREVO_API_KEY'):
+    EMAIL_BACKEND = 'HealthBridge.brevo_backend.BrevoEmailBackend'
+    BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+    DEFAULT_FROM_EMAIL = os.getenv('BREVO_FROM_EMAIL', 'noreply@yourdomain.com')
+    if os.environ.get('RUN_MAIN') == 'true':
+        print("✓ Using Brevo email backend (HTTP API)")
 # Resend (HTTP API - works on Render free tier, bypasses SMTP port blocking)
-if os.getenv('RESEND_API_KEY'):
+elif os.getenv('RESEND_API_KEY'):
     EMAIL_BACKEND = 'HealthBridge.resend_backend.ResendEmailBackend'
     RESEND_API_KEY = os.getenv('RESEND_API_KEY')
     DEFAULT_FROM_EMAIL = os.getenv('RESEND_FROM_EMAIL', 'onboarding@resend.dev')

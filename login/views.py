@@ -89,7 +89,13 @@ class CustomPasswordResetView(PasswordResetView):
     email_template_name = 'login/password_reset_email.html'
     success_url = reverse_lazy('login:password_reset_done')
     
+    # Prevent duplicate email sends
+    _email_sent = False
+    
     def dispatch(self, request, *args, **kwargs):
+        # Reset the flag for each request
+        self._email_sent = False
+        
         # Redirect authenticated users to their dashboard
         if request.user.is_authenticated:
             if not request.user.role_selected:
@@ -103,19 +109,43 @@ class CustomPasswordResetView(PasswordResetView):
     
     def form_valid(self, form):
         """Override to add error handling and prevent worker timeout"""
-        # Check if email is configured
-        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-            logger.error("Email credentials not configured")
-            # Redirect to done page anyway (security best practice)
+        # Prevent duplicate sends
+        if self._email_sent:
+            logger.warning("Duplicate email send attempt detected - skipping")
             return redirect(self.success_url)
+        
+        # Check if email is configured (works for both SMTP and API backends)
+        import os
+        email_configured = False
+        
+        # Check for Brevo API configuration
+        if os.getenv('BREVO_API_KEY'):
+            email_configured = True
+            backend_name = "Brevo API"
+        # Check for Resend API configuration
+        elif os.getenv('RESEND_API_KEY'):
+            email_configured = True
+            backend_name = "Resend API"
+        # Check for SMTP configuration
+        elif settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
+            email_configured = True
+            backend_name = f"SMTP ({settings.EMAIL_HOST})"
+        else:
+            backend_name = "Console (no-op)"
+        
+        if not email_configured:
+            logger.warning("Email credentials not fully configured - using console backend")
         
         try:
             # Log attempt (without sensitive info)
-            logger.info(f"Attempting password reset email via {settings.EMAIL_HOST}")
+            logger.info(f"Attempting password reset email via {backend_name}")
+            
+            # Mark as sent before attempting
+            self._email_sent = True
             
             # Try to send the email with timeout protection
             response = super().form_valid(form)
-            logger.info("Password reset email sent successfully")
+            logger.info(f"✓ Password reset email sent successfully via {backend_name}")
             return response
             
         except Exception as e:
