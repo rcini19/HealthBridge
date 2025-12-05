@@ -198,8 +198,20 @@ def delete_donation(request, donation_id):
     if request.method == 'POST':
         try:
             donation = get_object_or_404(Donation, id=donation_id, donor=request.user)
+            medicine_name = donation.name
+            
+            # Check if anyone has requested this donation
+            has_requests = donation.matched_requests.exists()
+            
+            # Delete the image from Supabase only if no one has requested it
+            if donation.image and not has_requests:
+                try:
+                    donation.image.delete(save=False)
+                except Exception as e:
+                    print(f"Error deleting image from Supabase: {str(e)}")
+            
             donation.delete()
-            return JsonResponse({'success': True})
+            return JsonResponse({'success': True, 'message': f'Donation "{medicine_name}" deleted successfully'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})

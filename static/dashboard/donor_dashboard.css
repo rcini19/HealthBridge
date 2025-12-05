@@ -237,6 +237,32 @@ body::before {
 .badge-critical, .badge-high { background: #fee2e2; color: #991b1b; }
 .badge-low { background: #e5e7eb; color: #374151; }
 
+/* Delete Button for Expiring Items */
+.btn-delete-small {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete-small:hover {
+    background: #fecaca;
+    border-color: #991b1b;
+    transform: scale(1.05);
+}
+
+.btn-delete-small:active {
+    transform: scale(0.95);
+}
+
+
 /* Request/Medicine Lists */
 .request-list, .medicine-list, .alert-list, .claimed-list {
     display: flex;
