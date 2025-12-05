@@ -1,0 +1,45 @@
+name: Daily Medicine Expiry Check
+
+on:
+  schedule:
+    # Run every day at 8 AM UTC (4 PM Philippine Time)
+    - cron: '0 8 * * *'
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  check-expiry:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run expiry check
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        BREVO_FROM_EMAIL: ${{ secrets.BREVO_FROM_EMAIL }}
+        BREVO_FROM_NAME: ${{ secrets.BREVO_FROM_NAME }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        SUPABASE_BUCKET_NAME: ${{ secrets.SUPABASE_BUCKET_NAME }}
+        DJANGO_SETTINGS_MODULE: 'HealthBridge.settings'
+      run: |
+        echo "Starting expiry check..."
+        python manage.py check_expiry --days=10
+        echo "Expiry check completed!"
+    
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ Expiry check failed! Check the logs above."

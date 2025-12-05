@@ -1,0 +1,55 @@
+name: Weekly Expired Medicine Cleanup
+
+on:
+  schedule:
+    # Run every Sunday at midnight UTC (8 AM Philippine Time)
+    - cron: '0 0 * * 0'
+  workflow_dispatch:  # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  cleanup-expired:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run expired donations cleanup
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+        BREVO_FROM_EMAIL: ${{ secrets.BREVO_FROM_EMAIL }}
+        BREVO_FROM_NAME: ${{ secrets.BREVO_FROM_NAME }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        SUPABASE_BUCKET_NAME: ${{ secrets.SUPABASE_BUCKET_NAME }}
+        DJANGO_SETTINGS_MODULE: 'HealthBridge.settings'
+      run: |
+        echo "🗑️ Starting cleanup of expired donations..."
+        echo "========================================"
+        python manage.py cleanup_expired --days-past-expiry=7
+        echo "========================================"
+        echo "✅ Cleanup completed!"
+    
+    - name: Summary
+      if: success()
+      run: |
+        echo "✅ Expired medicines cleanup successful!"
+        echo "- Deleted medicines expired for 7+ days"
+        echo "- Removed images from Supabase"
+        echo "- Notified donors via in-app notifications"
+    
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "❌ Cleanup failed! Check the logs above."

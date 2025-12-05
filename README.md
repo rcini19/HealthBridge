@@ -8,10 +8,12 @@ The system provides a user-friendly interface for both customers and administrat
 **Key Features:**
 - 🔍 Medicine search and availability tracking
 - 📦 Donation management system
-- ⏰ **Automated expiry monitoring** (checks every 2 minutes)
-- 📧 Email alerts for expiring medicines
+- ⏰ **Automated expiry monitoring** via GitHub Actions
+- 📧 Email alerts for expiring medicines (powered by Brevo)
+- 🗑️ Automated cleanup of expired donations
 - 👤 User authentication and profiles
 - ☁️ Cloud database with Supabase PostgreSQL
+- 🔔 In-app notification system
 
 ---
 
@@ -19,8 +21,9 @@ The system provides a user-friendly interface for both customers and administrat
 - **Frontend:** HTML, CSS, JavaScript  
 - **Backend:** Python (Django Framework)  
 - **Database:** Supabase (PostgreSQL)
-- **Monitoring:** Automated background service
-- **Email:** Brevo API (recommended for production), Resend, or SMTP (Gmail/Outlook/Yahoo)
+- **Storage:** Supabase Storage
+- **Automation:** GitHub Actions
+- **Email:** Brevo API (HTTPS-based, bypasses port restrictions)
 
 ---
 
@@ -63,29 +66,33 @@ Visit: **http://127.0.0.1:8000**
 
 ---
 
-## 🔄 Background Monitor (Automated Expiry Checks)
+## ⚙️ GitHub Actions Automation
 
-### Features
-- ✅ Monitors Supabase database every 2 minutes
-- ✅ Sends email alerts for medicines expiring within 10 days
-- ✅ Runs silently in background (no popup windows)
-- ✅ Auto-start on Windows login (optional)
+### Automated Workflows
+HealthBridge uses GitHub Actions for automated tasks:
 
-### Start Background Monitor
-```bash
-start_monitor.bat
-```
+1. **Daily Expiry Notifications** (8 AM UTC / 4 PM Philippine Time)
+   - Checks for medicines expiring within 10 days
+   - Sends email alerts to donors via Brevo API
 
-### Stop Background Monitor
-```bash
-powershell -File stop_monitor.ps1
-```
+2. **Weekly Cleanup** (Sunday 12 AM UTC / 8 AM Philippine Time)
+   - Deletes donations expired for 7+ days
+   - Removes images from Supabase Storage
+   - Deletes related medicine requests
+   - Sends in-app notifications to donors and recipients
 
-### Enable Auto-Start (Optional)
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\setup_autostart.ps1
-```
+### Required GitHub Secrets
+Navigate to `Settings` → `Secrets and variables` → `Actions` and add:
+- `DATABASE_URL` - Supabase PostgreSQL connection string
+- `BREVO_API_KEY` - Brevo email API key
+- `BREVO_FROM_EMAIL` - Sender email address
+- `BREVO_FROM_NAME` - Sender display name
+- `SUPABASE_URL` - Supabase project URL
+- `SUPABASE_KEY` - Supabase service role key
+- `SUPABASE_BUCKET_NAME` - Storage bucket name
+
+### Manual Trigger
+Go to `Actions` tab → Select workflow → Click `Run workflow`
 
 ---
 
@@ -122,21 +129,20 @@ python manage.py runserver
 | Start development server | `python manage.py runserver` |
 | Run migrations | `python manage.py migrate` |
 | Create superuser | `python manage.py createsuperuser` |
-| Check expiry manually | `python manage.py check_expiry` |
-| Start background monitor | `start_monitor.bat` |
-| Stop background monitor | `.\stop_monitor.ps1` |
+| Check expiry manually | `python manage.py check_expiry --days=10` |
+| Cleanup expired (dry-run) | `python manage.py cleanup_expired --dry-run` |
+| Cleanup expired (force) | `python manage.py cleanup_expired --days-past-expiry=7` |
 
 ---
 
 ## 📁 Important Files
 
 - **`setup.bat`** - One-click setup script
-- **`start_monitor.bat`** - Start background expiry monitor
-- **`stop_monitor.ps1`** - Stop background monitor
-- **`realtime_monitor.py`** - Supabase monitoring script
 - **`.env`** - Configuration (DO NOT commit to Git!)
-- **`SETUP_GUIDE.md`** - Detailed setup instructions
 - **`requirements.txt`** - Python dependencies
+- **`.github/workflows/`** - GitHub Actions automation workflows
+  - `check_expiry.yml` - Daily expiry notifications
+  - `cleanup_expired.yml` - Weekly cleanup automation
 
 ---
 
@@ -147,16 +153,19 @@ python manage.py runserver
 - Check internet connection
 - Run: `python manage.py migrate`
 
-**Monitor Not Working:**
-- Stop existing monitors: `.\stop_monitor.ps1`
-- Start fresh: `start_monitor.bat`
-- Check Task Manager for `pythonw.exe`
+**Emails Not Sending:**
+- Verify Brevo API key in `.env`
+- Check sender email is verified in Brevo dashboard
+- Test manually: `python manage.py check_expiry --days=10`
 
-**Popup Windows Appearing:**
-- Use `start_monitor.bat` (not direct Python)
-- Updated monitor uses subprocess (no popups)
+**GitHub Actions Failing:**
+- Verify all 7 secrets are configured in repository settings
+- Check workflow logs in Actions tab
+- Ensure DATABASE_URL includes `?sslmode=require`
 
-See **SETUP_GUIDE.md** for detailed troubleshooting.
+**Images Not Deleting:**
+- Verify `SUPABASE_KEY` has storage permissions
+- Check `SUPABASE_BUCKET_NAME` matches your bucket
 
 ---
 
@@ -177,13 +186,13 @@ See **SETUP_GUIDE.md** for detailed troubleshooting.
 This project is part of an academic requirement.
 
 ## 🔗 Links
-- **Repository:** https://github.com/Caleeeeeeeeeb/HealthBridge
+- **Repository:** https://github.com/rcini19/HealthBridge
 - **Database:** Supabase PostgreSQL (Cloud)
-- **Detailed Setup:** See `SETUP_GUIDE.md`
+- **Email Service:** Brevo API
 
 ---
 
 **Status:** ✅ Production Ready  
-**Version:** 2.0 (Supabase Edition)  
-**Last Updated:** October 15, 2025
+**Version:** 3.0 (GitHub Actions + Brevo Edition)  
+**Last Updated:** December 5, 2025
 
