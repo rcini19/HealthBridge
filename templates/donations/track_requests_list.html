@@ -37,9 +37,9 @@
         <div class="card">
           <div class="thumb">
             {% if d.image %}
-              <img src="{{ d.image.url }}" alt="{{ d.name }}" loading="lazy">
+              <img class="medicine-image" src="{{ d.image.url }}" alt="{{ d.name }}" loading="lazy">
             {% else %}
-              <img src="{% static 'img/placeholder-medicine.png' %}" alt="No image" loading="lazy">
+              <img class="medicine-image" src="{% static 'healthbridge_app/image.png' %}" alt="No image" loading="lazy">
             {% endif %}
           </div>
 

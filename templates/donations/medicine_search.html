@@ -99,7 +99,7 @@
           
           <div class="thumb">
             {% if med.image %}
-              <img src="{{ med.image.url }}" alt="{{ med.name }}">
+              <img class="medicine-image" src="{{ med.image.url }}" alt="{{ med.name }}">
             {% else %}
               <span class="medicine-icon">💊</span>
             {% endif %}

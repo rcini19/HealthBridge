@@ -271,7 +271,7 @@
           <div class="medicine-card" data-name="{{ medicine.name|lower }}" onclick="showMedicineDetails({{ medicine.id }})">
             {% if medicine.image %}
             <div class="medicine-image">
-              <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}">
+              <img class="medicine-image" src="{{ medicine.image.url }}" alt="{{ medicine.name }}">
             </div>
             {% endif %}
             <div class="medicine-details">

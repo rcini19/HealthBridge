@@ -238,6 +238,38 @@
       50% { transform: scale(1.1); opacity: 0.3; }
     }
 
+    /* Image & Icon System - polished, consistent visuals */
+    .medicine-image, .rounded-img {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+      background-color: #f3f4f6; /* subtle gray while loading */
+    }
+
+    /* Small icons / avatars */
+    .icon-img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* Utility to make images circular */
+    .img-circle { border-radius: 9999px; }
+
+    /* Responsive images inside cards */
+    .card img, .thumb img {
+      width: 100%;
+      height: auto;
+      max-height: 240px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
     .profile-avatar {
       width: 80px;
       height: 80px;
@@ -425,6 +457,11 @@
       display: flex;
     }
 
+    /* When a modal is open, prevent body scrolling to avoid double scrollbars */
+    body.modal-open {
+      overflow: hidden !important;
+    }
+
     .modal-container {
       background: white;
       width: 90%;
@@ -434,6 +471,24 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
       border-radius: 12px;
       animation: slideUp 0.3s ease;
+    }
+
+    /* Slim, modern scrollbar for modal content */
+    .modal-container::-webkit-scrollbar {
+      width: 10px;
+    }
+    .modal-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .modal-container::-webkit-scrollbar-thumb {
+      background: rgba(15,23,42,0.12);
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.6);
+    }
+    /* Firefox */
+    .modal-container {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(15,23,42,0.12) transparent;
     }
 
     @keyframes slideUp {
@@ -1160,8 +1215,28 @@
       modal.addEventListener('click', function(e) {
         if (e.target === this) {
           this.classList.remove('active');
+          // ensure body scroll is restored when modal closed by clicking overlay
+          document.body.classList.remove('modal-open');
+          document.body.style.paddingRight = '';
         }
       });
+      // Observe class changes to toggle body modal-open (prevents double scrollbars)
+      const obs = new MutationObserver(mutations => {
+        mutations.forEach(m => {
+          if (m.attributeName === 'class') {
+            if (modal.classList.contains('active')) {
+              // Add body class and compensate for scrollbar width to avoid layout shift
+              const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+              if (scrollbarWidth > 0) document.body.style.paddingRight = scrollbarWidth + 'px';
+              document.body.classList.add('modal-open');
+            } else {
+              document.body.classList.remove('modal-open');
+              document.body.style.paddingRight = '';
+            }
+          }
+        });
+      });
+      obs.observe(modal, { attributes: true });
     });
   });
   </script>

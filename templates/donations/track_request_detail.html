@@ -28,9 +28,9 @@
     <div class="image-card">
       <div class="thumb">
         {% if donation.image %}
-          <img src="{{ donation.image.url }}" alt="{{ donation.name }}">
+          <img class="medicine-image rounded-img" src="{{ donation.image.url }}" alt="{{ donation.name }}">
         {% else %}
-          <img src="{% static 'img/placeholder-medicine.png' %}" alt="No image">
+          <img class="medicine-image rounded-img" src="{% static 'healthbridge_app/image.png' %}" alt="No image">
         {% endif %}
       </div>
 

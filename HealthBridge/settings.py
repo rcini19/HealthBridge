@@ -195,6 +195,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 🆕 Media files configuration - Supabase Storage
 MEDIA_URL = '/media/'  # Keep for backward compatibility
+# Local media root (used in development when DEBUG=True)
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Supabase Storage settings
 SUPABASE_URL = os.getenv('SUPABASE_URL')
@@ -210,6 +212,12 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+# Use local filesystem storage during development so existing local
+# `media/` images render correctly. In production the Supabase backend
+# will be used (when DEBUG is False and SUPABASE settings are present).
+if DEBUG:
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
 
 # Auth redirects
 LOGIN_URL = '/login/'             # where @login_required sends unauthenticated users
