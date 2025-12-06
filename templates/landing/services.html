@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services - HealthBridge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'landing/style.css' %}?v=3">
+</head>
+<body>
+  <nav class="professional-nav">
+    <div class="nav-container">
+      <div class="logo">
+        <a href="{% url 'landing:home' %}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
+          <img src="{% static 'healthbridge_app/logo.png' %}" alt="HealthBridge Logo" class="logo-img" style="height:40px;">
+          <span style="font-weight:700; font-size:1.15rem;">HealthBridge</span>
+        </a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="{% url 'landing:services' %}">Services</a></li>
+        <li><a href="{% url 'landing:about' %}">About</a></li>
+        <li><a href="{% url 'landing:contact' %}">Contact Us</a></li>
+      </ul>
+      <div class="nav-buttons">
+        <a href="{% url 'login:login' %}"><button class="login-btn">Login</button></a>
+        <a href="{% url 'registration:register' %}"><button class="register-btn">Register</button></a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero-section" style="padding:4rem 8% 3rem; min-height:40vh; align-items:flex-start;">
+      <div class="hero-text">
+        <h1>Services</h1>
+        <p class="lead" style="font-size:1.25rem; color:rgba(255,255,255,0.95); margin-top:0.5rem;">HealthBridge connects donors and recipients to safely share unused, in-date medicines across communities.</p>
+      </div>
+      <div class="hero-image" aria-hidden="true">
+        <img src="{% static 'healthbridge_app/doctors.png' %}" alt="Healthcare Professionals">
+      </div>
+    </section>
+
+    <section class="features-section">
+      <h2 style="margin-bottom:0.75rem;">What We Offer</h2>
+      <p>Below are the core services we provide to support safe and timely medicine sharing.</p>
+
+      <div class="features-grid" style="margin-top:2rem;">
+        <div class="feature-card">
+          <div class="feature-icon">🔎</div>
+          <h3>Medicine Matching</h3>
+          <p>We match donated medicines to verified recipients nearby, prioritizing urgency and compatibility.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Verification & Safety</h3>
+          <p>Each donation goes through checks to ensure medicines are in-date and packaging is intact before distribution.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🚚</div>
+          <h3>Delivery Coordination</h3>
+          <p>We coordinate drop-offs or courier options with partners to make sure medicines reach recipients safely.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🤝</div>
+          <h3>Community Support</h3>
+          <p>We provide resources and guidance to donors and recipients to encourage safe medicine sharing.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-section" style="margin-top:2rem; padding:3rem 8%;">
+      <h2>Get Involved</h2>
+      <p>Register as a donor or reach out to partner with HealthBridge.</p>
+      <div style="margin-top:1rem;">
+        <a href="{% url 'registration:register' %}" class="cta-btn">Register As Donor</a>
+        <a href="{% url 'landing:contact' %}" style="margin-left:1rem;" class="cta-btn">Contact Us</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

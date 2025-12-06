@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - HealthBridge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'landing/style.css' %}?v=3">
+</head>
+<body>
+  <nav class="professional-nav">
+    <div class="nav-container">
+      <div class="logo">
+        <a href="{% url 'landing:home' %}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
+          <img src="{% static 'healthbridge_app/logo.png' %}" alt="HealthBridge Logo" class="logo-img" style="height:40px;">
+          <span style="font-weight:700; font-size:1.15rem;">HealthBridge</span>
+        </a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="{% url 'landing:services' %}">Services</a></li>
+        <li><a href="{% url 'landing:about' %}">About</a></li>
+        <li><a href="{% url 'landing:contact' %}">Contact Us</a></li>
+      </ul>
+      <div class="nav-buttons">
+        <a href="{% url 'login:login' %}"><button class="login-btn">Login</button></a>
+        <a href="{% url 'registration:register' %}"><button class="register-btn">Register</button></a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero-section" style="padding:4rem 8% 3rem; min-height:40vh; align-items:flex-start;">
+      <div class="hero-text">
+        <h1>About HealthBridge</h1>
+        <p class="lead" style="font-size:1.25rem; color:rgba(255,255,255,0.95); margin-top:0.5rem;">We connect community members to safely share in-date medicines, reduce waste, and improve access to care.</p>
+      </div>
+      <div class="hero-image" aria-hidden="true">
+        <img src="{% static 'healthbridge_app/doctors.png' %}" alt="Healthcare Professionals">
+      </div>
+    </section>
+
+    <section class="features-section">
+      <h2>Mission & Approach</h2>
+      <p>We aim to reduce medicine waste and improve access to essential medications by enabling safe, verified sharing between community members and trusted partners.</p>
+
+      <div class="features-grid" style="margin-top:2rem;">
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Our Mission</h3>
+          <p>Reduce waste and expand access through community-driven medicine sharing and verification.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">⚙️</div>
+          <h3>How We Work</h3>
+          <p>Donors list medicines, our platform matches requests, and donations are verified and coordinated for safe delivery.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">💡</div>
+          <h3>Values</h3>
+          <p>Safety, community, and transparency guide our operations and partnerships.</p>
+        </div>
+      </div>
+
+      <p style="margin-top:1.5rem;">If you'd like to learn more or partner with HealthBridge, please visit our <a href="{% url 'landing:contact' %}">Contact Us</a> page.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -79,6 +79,12 @@ AUTHENTICATION_BACKENDS = [
     'healthbridge_app.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',  # keep default for admin
 ]
+import importlib
+
+# Build middleware list and include WhiteNoise only if it's installed in the
+# current Python environment. This avoids ImportError when someone runs the
+# project with a Python interpreter that doesn't have the project's venv
+# packages installed (e.g., system Python).
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -87,8 +93,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  
 ]
+
+# Insert WhiteNoise middleware if available
+if importlib.util.find_spec('whitenoise') is not None:
+    # Put WhiteNoise after SecurityMiddleware for best compatibility
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'HealthBridge.urls'
 

@@ -2,6 +2,7 @@
 {% load static %}
 
 {% block title %}Recipient Dashboard - HealthBridge{% endblock %}
+{% block nav_dashboard_active %}is-active{% endblock %}
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +16,7 @@
     <div class="dashboard-header">
         <div class="header-content">
             <h1 class="dashboard-title" style="color: #ffffff;">Recipient Dashboard</h1>
-            <p class="dashboard-subtitle" style="color: #ffffff;">Welcome back, {{ user.first_name }}</p>
+            <p class="dashboard-subtitle" style="color: #ffffff;">Welcome back, {{ user.first_name }}!</p>
         </div>
         <div class="header-actions">
             <button class="btn-primary" onclick="openAllMedicinesModal()">

@@ -190,17 +190,18 @@ body::before {
 }
 
 .cta-btn {
-  padding: 1rem 2.5rem;
+  padding: 1rem 2.75rem;
   background: white;
   color: var(--primary-blue);
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: 800;
+  font-size: 1.125rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   transition: all 0.3s;
   animation: fadeInUp 0.8s ease-out 0.4s both;
+  text-transform: none; /* preserve casing for longer CTAs */
 }
 
 .cta-btn:hover {
@@ -406,12 +407,13 @@ body::before {
 }
 
 .cta-buttons a button {
-  padding: 1rem 2.5rem;
-  border-radius: 12px;
-  font-weight: 700;
-  font-size: 1rem;
+  padding: 1rem 2.75rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 1.05rem;
   cursor: pointer;
   transition: all 0.3s;
+  text-transform: none;
 }
 
 .btn-primary {
@@ -419,6 +421,8 @@ body::before {
   color: var(--primary-blue);
   border: none;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  font-weight: 800;
+  border-radius: 14px;
 }
 
 .btn-primary:hover {
@@ -430,6 +434,9 @@ body::before {
   background: transparent;
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.5);
+  font-weight: 700;
+  border-radius: 14px;
+  text-transform: none;
 }
 
 .btn-outline:hover {

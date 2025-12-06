@@ -13,12 +13,17 @@
     <!-- Navbar -->
     <nav class="professional-nav">
         <div class="nav-container">
-            <div class="logo">HealthBridge</div>
+            <div class="logo">
+                <a href="{% url 'landing:home' %}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
+                    <img src="{% static 'healthbridge_app/logo.png' %}" alt="HealthBridge Logo" class="logo-img" style="height:38px;">
+                    <span>HealthBridge</span>
+                </a>
+            </div>
             <ul class="nav-links">
-                <li><a href="{% url 'landing:home' %}">Home</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Contact Us</a></li>
+                <!-- Home removed per design decision -->
+                <li><a href="{% url 'landing:services' %}">Services</a></li>
+                <li><a href="{% url 'landing:about' %}">About</a></li>
+                <li><a href="{% url 'landing:contact' %}">Contact Us</a></li>
             </ul>
         </div>
     </nav>

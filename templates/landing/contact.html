@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - HealthBridge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'landing/style.css' %}?v=3">
+</head>
+<body>
+  <nav class="professional-nav">
+    <div class="nav-container">
+      <div class="logo">
+        <a href="{% url 'landing:home' %}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
+          <img src="{% static 'healthbridge_app/logo.png' %}" alt="HealthBridge Logo" class="logo-img" style="height:40px;">
+          <span style="font-weight:700; font-size:1.15rem;">HealthBridge</span>
+        </a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="{% url 'landing:services' %}">Services</a></li>
+        <li><a href="{% url 'landing:about' %}">About</a></li>
+        <li><a href="{% url 'landing:contact' %}">Contact Us</a></li>
+      </ul>
+      <div class="nav-buttons">
+        <a href="{% url 'login:login' %}"><button class="login-btn">Login</button></a>
+        <a href="{% url 'registration:register' %}"><button class="register-btn">Register</button></a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero-section" style="padding:4rem 8% 3rem; min-height:40vh; align-items:flex-start;">
+      <div class="hero-text">
+        <h1>Contact Us</h1>
+        <p class="lead" style="font-size:1.25rem; color:rgba(255,255,255,0.95); margin-top:0.5rem;">Questions, partnerships, or help with donations — we're here to help. Send us a message and we'll respond as soon as possible.</p>
+      </div>
+      <div class="hero-image" aria-hidden="true">
+        <img src="{% static 'healthbridge_app/doctors.png' %}" alt="Healthcare Professionals">
+      </div>
+    </section>
+
+    <section class="features-section">
+      <div style="max-width:700px; margin:0 auto;">
+        <div class="feature-card">
+          <h3>Send a Message</h3>
+          <form action="#" method="post" style="display:grid; gap:0.75rem; margin-top:1rem;">
+            {% csrf_token %}
+            <input id="name" name="name" type="text" placeholder="Full name" style="padding:0.6rem; border-radius:8px; border:1px solid #e5e7eb;">
+            <input id="email" name="email" type="email" placeholder="you@example.com" style="padding:0.6rem; border-radius:8px; border:1px solid #e5e7eb;">
+            <textarea id="message" name="message" rows="6" placeholder="How can we help?" style="padding:0.6rem; border-radius:8px; border:1px solid #e5e7eb;"></textarea>
+            <button type="submit" class="cta-btn" style="width:fit-content; padding:0.6rem 1rem;">Send Message</button>
+          </form>
+
+          <div style="margin-top:1rem; color:#6b7280;">
+            <p><strong>Email:</strong> <a href="mailto:support@healthbridge.example">support@healthbridge.example</a></p>
+            <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -56,14 +56,19 @@
       padding: 20px;
     }
 
-    /* Footer */
+    /* Footer - improved contrast over background imagery */
     footer {
-      background: #f8f9fa;
-      padding: 1.5rem;
       text-align: center;
-      color: #6b7280;
-      font-size: 0.9rem;
-      border-top: 1px solid #e5e7eb;
+      padding: 1rem 1.5rem;
+      color: rgba(255,255,255,0.95);
+      font-size: 0.95rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.32));
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 -6px 20px rgba(2,6,23,0.12);
+      backdrop-filter: blur(6px);
+      text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+      border-radius: 8px 8px 0 0;
     }
 
     footer a {
@@ -80,8 +85,13 @@
 </head>
 <body>
   <header class="auth-header">
-    <h1>🏥 HealthBridge</h1>
-    <p>Connecting Communities Through Medicine Sharing</p>
+    <div style="max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:1rem;">
+      <a href="{% url 'landing:home' %}" style="display:flex; align-items:center; gap:0.75rem; text-decoration:none; color:inherit;">
+        <img src="{% static 'healthbridge_app/logo.png' %}" alt="HealthBridge Logo" class="logo-img" style="height:46px;">
+        <h1 style="margin:0; color: white; font-size:1.5rem;">HealthBridge</h1>
+      </a>
+      <p style="margin-left:1rem; color: rgba(255,255,255,0.95);">Connecting Communities Through Medicine Sharing</p>
+    </div>
   </header>
 
   <main>
@@ -89,7 +99,7 @@
   </main>
 
   <footer>
-    <p>&copy; 2025 HealthBridge. All rights reserved. | <a href="{% url 'home' %}">Back to Home</a></p>
+    <p>&copy; 2025 HealthBridge. All rights reserved. &#x7C; <a href="{% url 'home' %}" style="color: rgba(255,255,255,0.9);">Back to Home</a></p>
   </footer>
 
   {% block extra_scripts %}{% endblock %}

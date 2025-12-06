@@ -12,11 +12,16 @@
   <!-- Navbar -->
   <nav class="professional-nav">
     <div class="nav-container">
-      <div class="logo">HealthBridge</div>
+      <div class="logo">
+        <a href="{% url 'landing:home' %}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
+          <img src="{% static 'healthbridge_app/logo.png' %}" alt="HealthBridge Logo" class="logo-img" style="height:40px;">
+          <span style="font-weight:700; font-size:1.15rem;">HealthBridge</span>
+        </a>
+      </div>
       <ul class="nav-links">
-        <li><a href="#">Services</a></li>
-        <li><a href="#">About</a></li>
-        <li><a href="#">Contact Us</a></li>
+        <li><a href="{% url 'landing:services' %}">Services</a></li>
+        <li><a href="{% url 'landing:about' %}">About</a></li>
+        <li><a href="{% url 'landing:contact' %}">Contact Us</a></li>
       </ul>
       <div class="nav-buttons">
         <a href="{% url 'login:login' %}"><button class="login-btn">Login</button></a>
@@ -95,8 +100,8 @@
     <h2>Ready to Make a Difference?</h2>
     <p>Join thousands of people who are already making healthcare more accessible through medicine donations and community support.</p>
     <div class="cta-buttons">
-      <a href="{% url 'registration:register' %}"><button class="btn-primary">Start Donating</button></a>
-      <a href="{% url 'login:login' %}"><button class="btn-outline">Login to Account</button></a>
+      <a href="{% url 'registration:register' %}"><button class="btn-primary">Be one of us</button></a>
+      <a href="{% url 'login:login' %}"><button class="btn-outline">Get Started</button></a>
     </div>
   </section>
 </body>

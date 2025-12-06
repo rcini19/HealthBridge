@@ -679,8 +679,17 @@
 
     main { padding: 2rem 5%; }
     footer {
-      text-align: center; padding: 1rem; color: #777;
-      font-size: .9rem; background: var(--light-bg); margin-top: 2rem;
+      text-align: center;
+      padding: 1rem 1.5rem;
+      color: rgba(255,255,255,0.95);
+      font-size: .9rem;
+      background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.45));
+      margin-top: 2rem;
+      position: relative;
+      /* subtle lift so footer content stands out over background images */
+      box-shadow: 0 -6px 20px rgba(2,6,23,0.18);
+      backdrop-filter: blur(4px);
+      text-shadow: 0 1px 0 rgba(0,0,0,0.35);
     }
 
     @media (max-width: 720px){
