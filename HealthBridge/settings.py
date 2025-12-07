@@ -86,7 +86,7 @@ import importlib
 # project with a Python interpreter that doesn't have the project's venv
 # packages installed (e.g., system Python).
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.security.SecurityMiddleware',  # Re-enabled - will only enforce HTTPS when DEBUG=False
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

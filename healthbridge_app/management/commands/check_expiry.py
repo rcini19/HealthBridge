@@ -127,21 +127,12 @@ class Command(BaseCommand):
         return notifications_sent
     
     def get_notification_recipients(self, donation):
-        """Get list of email recipients for a donation"""
+        """Get list of email recipients for a donation - only the donor"""
         recipients = set()
         
-        # Add donor email if exists
+        # Only add the donor's email
         if donation.donor and donation.donor.email:
             recipients.add(donation.donor.email)
-        
-        # Add admin/staff emails
-        User = get_user_model()
-        admin_users = User.objects.filter(
-            is_staff=True, 
-            email__isnull=False
-        ).exclude(email='').values_list('email', flat=True)
-        
-        recipients.update(admin_users)
         
         return list(recipients)
     

@@ -197,7 +197,7 @@ def recipient_dashboard(request):
         status=Donation.Status.AVAILABLE,
         approval_status=Donation.ApprovalStatus.APPROVED,  # Only show approved donations
         quantity__gt=0
-    ).order_by('-donated_at')[:50]
+    ).prefetch_related('matched_requests__recipient').order_by('-donated_at')[:50]
     
     # Recent requests (pending, matched, fulfilled only)
     recent_requests = user_requests.filter(
