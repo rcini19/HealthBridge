@@ -526,7 +526,14 @@ const allMedicines = [
     {% if medicine.image %}image: "{{ medicine.image.url }}",{% endif %}
     donor_name: "{{ medicine.donor.first_name }} {{ medicine.donor.last_name }}",
     tracking_code: "{{ medicine.tracking_code }}",
-    donated_at: "{{ medicine.donated_at|date:'M d, Y' }}"
+    donated_at: "{{ medicine.donated_at|date:'M d, Y' }}",
+    recipients: [
+      {% for request in medicine.matched_requests.all %}
+        {% if request.status == 'claimed' %}
+          "{{ request.recipient.first_name }} {{ request.recipient.last_name }}"{% if not forloop.last %},{% endif %}
+        {% endif %}
+      {% endfor %}
+    ]
   },
   {% endfor %}
 ];
@@ -791,6 +798,14 @@ function showMedicineDetails(medicineId) {
   
   title.textContent = medicine.name;
   
+  // Format recipients list
+  let recipientsDisplay = '';
+  if (medicine.recipients && medicine.recipients.length > 0) {
+    recipientsDisplay = medicine.recipients.join(', ');
+  } else {
+    recipientsDisplay = '<em style="color: #6b7280;">No recipients for this medicine yet</em>';
+  }
+  
   body.innerHTML = `
     <div class="medicine-details-content">
       ${medicine.image ? `
@@ -826,6 +841,10 @@ function showMedicineDetails(medicineId) {
         <div class="details-row">
           <span class="details-label">Donated On:</span>
           <span class="details-value">${medicine.donated_at}</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">Recipients:</span>
+          <span class="details-value">${recipientsDisplay}</span>
         </div>
         <div class="details-row">
           <span class="details-label">Tracking Code:</span>
