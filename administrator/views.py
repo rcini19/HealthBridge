@@ -37,16 +37,10 @@ def admin_dashboard(request):
     approved_donations = Donation.objects.filter(
         approval_status=Donation.ApprovalStatus.APPROVED
     ).count()
-    rejected_donations = Donation.objects.filter(
-        approval_status=Donation.ApprovalStatus.REJECTED
-    ).count()
     
     total_requests = MedicineRequest.objects.count()
     approved_requests = MedicineRequest.objects.filter(
         approval_status=MedicineRequest.ApprovalStatus.APPROVED
-    ).count()
-    rejected_requests = MedicineRequest.objects.filter(
-        approval_status=MedicineRequest.ApprovalStatus.REJECTED
     ).count()
     
     # Get recent approvals
@@ -66,11 +60,9 @@ def admin_dashboard(request):
         
         'total_donations': total_donations,
         'approved_donations': approved_donations,
-        'rejected_donations': rejected_donations,
         
         'total_requests': total_requests,
         'approved_requests': approved_requests,
-        'rejected_requests': rejected_requests,
         
         'recent_approved_donations': recent_approved_donations,
         'recent_approved_requests': recent_approved_requests,
@@ -131,24 +123,26 @@ def reject_donation(request, donation_id):
                 messages.error(request, 'Please provide a reason for rejection.')
                 return redirect('admin_dashboard')
             
-            donation.approval_status = Donation.ApprovalStatus.REJECTED
-            donation.reviewed_by = request.user
-            donation.reviewed_at = timezone.now()
-            donation.rejection_reason = reason
-            donation.save()
+            # Store donation info before deletion
+            donation_name = donation.name
+            donation_quantity = donation.quantity
+            donor_user = donation.donor
+            tracking_code = donation.tracking_code
             
-            # Create notification for donor
-            if donation.donor:
+            # Create notification for donor before deleting
+            if donor_user:
                 Notification.objects.create(
-                    user=donation.donor,
+                    user=donor_user,
                     notification_type=Notification.Type.DONATION_REJECTED,
                     title='Donation Rejected ❌',
-                    message=f'Your donation of {donation.quantity}x {donation.name} was rejected. Reason: {reason}',
-                    donation_id=donation.id
+                    message=f'Your donation of {donation_quantity}x {donation_name} was rejected and removed. Reason: {reason}'
                 )
             
-            messages.warning(request, f'Donation "{donation.name}" has been rejected.')
-            logger.info(f'Admin {request.user.email} rejected donation {donation.tracking_code}')
+            # Delete the donation from database
+            donation.delete()
+            
+            messages.warning(request, f'Donation "{donation_name}" has been rejected and deleted.')
+            logger.info(f'Admin {request.user.email} rejected and deleted donation {tracking_code}')
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': 'Donation rejected!'})
@@ -203,24 +197,35 @@ def approve_request(request, request_id):
                     request_id=medicine_request.id
                 )
             
-            # Notify donor that their medicine request has been approved and will be claimed
+            # Notify donor that their medicine request has been approved and must deliver by deadline
             if medicine_request.matched_donation and medicine_request.matched_donation.donor:
                 recipient_name = medicine_request.recipient.get_full_name() or medicine_request.recipient.username
-                donor_message = (
-                    f'Good news! The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
-                    f'from {recipient_name} has been approved by admin. '
-                    f'The recipient will claim it'
-                )
+                
                 if claim_date:
-                    donor_message += f' on {claim_date.strftime("%B %d, %Y")}.'
+                    donor_message = (
+                        f'🚨 DELIVERY REQUIRED: The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
+                        f'from {recipient_name} has been approved by admin. '
+                        f'\n\n⚠️ YOU MUST DELIVER THIS MEDICINE ON OR BEFORE {claim_date.strftime("%B %d, %Y")}.'
+                        f'\n\nRecipient Contact: {medicine_request.recipient.email}'
+                        f'\nTracking Code: {medicine_request.tracking_code}'
+                        f'\n\nPlease coordinate with the recipient to arrange delivery.'
+                    )
+                    notification_title = f'⚠️ Delivery Required by {claim_date.strftime("%b %d")} - Action Needed!'
                 else:
-                    donor_message += ' soon.'
-                donor_message += f' Tracking Code: {medicine_request.tracking_code}'
+                    donor_message = (
+                        f'Good news! The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
+                        f'from {recipient_name} has been approved by admin. '
+                        f'\n\nPlease deliver this medicine as soon as possible.'
+                        f'\nRecipient Contact: {medicine_request.recipient.email}'
+                        f'\nTracking Code: {medicine_request.tracking_code}'
+                        f'\n\nCoordinate with the recipient for delivery arrangements.'
+                    )
+                    notification_title = 'Request Approved - Delivery Required 📦'
                 
                 Notification.objects.create(
                     user=medicine_request.matched_donation.donor,
                     notification_type=Notification.Type.REQUEST_APPROVED,
-                    title='Request Approved - Medicine Will Be Claimed 📦',
+                    title=notification_title,
                     message=donor_message,
                     request_id=medicine_request.id,
                     donation_id=medicine_request.matched_donation.id
@@ -256,24 +261,32 @@ def reject_request(request, request_id):
                 messages.error(request, 'Please provide a reason for rejection.')
                 return redirect('admin_dashboard')
             
-            medicine_request.approval_status = MedicineRequest.ApprovalStatus.REJECTED
-            medicine_request.reviewed_by = request.user
-            medicine_request.reviewed_at = timezone.now()
-            medicine_request.rejection_reason = reason
-            medicine_request.save()
+            # Store request info before deletion
+            medicine_name = medicine_request.medicine_name
+            quantity = medicine_request.quantity
+            recipient_user = medicine_request.recipient
+            tracking_code = medicine_request.tracking_code
+            matched_donation = medicine_request.matched_donation
             
-            # Create notification for recipient
-            if medicine_request.recipient:
+            # Create notification for recipient before deleting
+            if recipient_user:
                 Notification.objects.create(
-                    user=medicine_request.recipient,
+                    user=recipient_user,
                     notification_type=Notification.Type.REQUEST_REJECTED,
                     title='Request Rejected ❌',
-                    message=f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} was rejected. Reason: {reason}',
-                    request_id=medicine_request.id
+                    message=f'Your request for {quantity}x {medicine_name} was rejected and removed. Reason: {reason}'
                 )
             
-            messages.warning(request, f'Request for "{medicine_request.medicine_name}" has been rejected.')
-            logger.info(f'Admin {request.user.email} rejected request {medicine_request.tracking_code}')
+            # If the request was matched to a donation, set that donation back to AVAILABLE
+            if matched_donation:
+                matched_donation.status = Donation.Status.AVAILABLE
+                matched_donation.save()
+            
+            # Delete the request from database
+            medicine_request.delete()
+            
+            messages.warning(request, f'Request for "{medicine_name}" has been rejected and deleted.')
+            logger.info(f'Admin {request.user.email} rejected and deleted request {tracking_code}')
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': 'Request rejected!'})
