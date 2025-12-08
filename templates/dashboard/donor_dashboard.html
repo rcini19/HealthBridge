@@ -6,7 +6,7 @@
 
 {% block extra_css %}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'dashboard/donor_dashboard.css' %}">
+<link rel="stylesheet" href="{% static 'dashboard/donor_dashboard.css' %}?v=3.0">
 {% endblock %}
 
 {% block content %}
@@ -55,6 +55,46 @@
             <div class="stat-value">{{ delivered_donations }}</div>
         </div>
     </div>
+
+    <!-- Pending Approval Alert -->
+    {% if pending_approval_count > 0 %}
+    <div class="content-card pending-approval-section">
+        <div class="pending-approval-header">
+            <h2 class="pending-approval-title">
+                <span class="icon">⏳</span>
+                Pending Admin Approval ({{ pending_approval_count }})
+            </h2>
+        </div>
+        <div class="pending-approval-body">
+            <p class="pending-approval-description">
+                Your recent donations are awaiting admin approval before they become available to recipients.
+            </p>
+            <div class="pending-approval-list" id="pendingApprovalList">
+                {% for donation in pending_approval_donations %}
+                <div class="pending-item {% if forloop.counter > 5 %}hidden-pending-item{% endif %}">
+                    <div class="pending-item-info">
+                        <div class="pending-item-name">{{ donation.name }}</div>
+                        <div class="pending-item-meta">
+                            Submitted: {{ donation.donated_at|date:"M d, Y - h:i A" }}
+                        </div>
+                    </div>
+                    <div class="pending-item-actions">
+                        <span class="badge-pending">Pending</span>
+                        <span class="pending-item-quantity">Qty: {{ donation.quantity }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if pending_approval_count > 5 %}
+            <div style="margin-top: 1.25rem; text-align: center;">
+                <button onclick="togglePendingApprovalItems()" id="viewAllPendingBtn" class="btn-view-all">
+                    View All ({{ pending_approval_count }})
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Main Content Grid -->
     <div class="content-grid">
@@ -757,6 +797,23 @@ function filterMedicines() {
       card.style.display = 'none';
     }
   });
+}
+
+// Toggle Pending Approval Items
+function togglePendingApprovalItems() {
+  const hiddenItems = document.querySelectorAll('.hidden-pending-item');
+  const btn = document.getElementById('viewAllPendingBtn');
+  const isHidden = hiddenItems[0].style.display === 'none' || hiddenItems[0].style.display === '';
+  
+  hiddenItems.forEach(item => {
+    if (isHidden) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+  
+  btn.textContent = isHidden ? 'Show Less' : 'View All (' + hiddenItems.length + ')';
 }
 
 // Close modals on overlay click

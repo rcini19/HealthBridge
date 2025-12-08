@@ -106,15 +106,31 @@ def donor_dashboard(request):
     
     # Donor statistics
     total_donations = Donation.objects.filter(donor=request.user).count()
-    reserved_donations = Donation.objects.filter(donor=request.user, status=Donation.Status.RESERVED).count()
+    
+    # Separate pending and approved donations
+    pending_approval_donations = Donation.objects.filter(
+        donor=request.user,
+        approval_status=Donation.ApprovalStatus.PENDING
+    ).order_by('-donated_at')
+    
+    reserved_donations = Donation.objects.filter(
+        donor=request.user,
+        status=Donation.Status.RESERVED,
+        approval_status=Donation.ApprovalStatus.APPROVED
+    ).count()
+    
     # Count settled requests (claimed medicines) instead of donation status
     delivered_donations = MedicineRequest.objects.filter(
         matched_donation__donor=request.user,
-        status=MedicineRequest.Status.CLAIMED
+        status=MedicineRequest.Status.CLAIMED,
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED
     ).count()
     
-    # Recent donations
-    recent_donations = Donation.objects.filter(donor=request.user).order_by('-donated_at')[:10]
+    # Recent approved donations only
+    recent_donations = Donation.objects.filter(
+        donor=request.user,
+        approval_status=Donation.ApprovalStatus.APPROVED
+    ).order_by('-donated_at')[:10]
     
     # Expiring donations warning
     user_expiring = Donation.objects.expiring_within(days=10).filter(donor=request.user)
@@ -143,6 +159,8 @@ def donor_dashboard(request):
     
     context.update({
         'total_donations': total_donations,
+        'pending_approval_donations': pending_approval_donations,
+        'pending_approval_count': pending_approval_donations.count(),
         'reserved_donations': reserved_donations,
         'delivered_donations': delivered_donations,
         'recent_donations': recent_donations,
@@ -173,12 +191,27 @@ def recipient_dashboard(request):
     user_requests = MedicineRequest.objects.filter(recipient=request.user)
     
     total_requests = user_requests.count()
-    # Pending counter should include PENDING and MATCHED statuses
+    
+    # Separate pending approval from approved pending/matched requests
+    pending_approval_requests = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.PENDING
+    ).order_by('-created_at')
+    
+    # Pending counter should include only APPROVED requests that are PENDING or MATCHED
     pending_requests = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED,
         status__in=[MedicineRequest.Status.PENDING, MedicineRequest.Status.MATCHED]
     ).count()
-    fulfilled_requests = user_requests.filter(status=MedicineRequest.Status.FULFILLED).count()
-    claimed_count = user_requests.filter(status=MedicineRequest.Status.CLAIMED).count()
+    
+    fulfilled_requests = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED,
+        status=MedicineRequest.Status.FULFILLED
+    ).count()
+    
+    claimed_count = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED,
+        status=MedicineRequest.Status.CLAIMED
+    ).count()
     
     # Recently donated medicines (most recent first, only show APPROVED available ones with quantity > 0)
     available_medicines = Donation.objects.filter(
@@ -199,8 +232,9 @@ def recipient_dashboard(request):
         quantity__gt=0
     ).prefetch_related('matched_requests__recipient').order_by('-donated_at')[:50]
     
-    # Recent requests (pending, matched, fulfilled only)
+    # Recent requests (only approved ones that are pending, matched, or fulfilled)
     recent_requests = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED,
         status__in=[MedicineRequest.Status.PENDING, MedicineRequest.Status.MATCHED, MedicineRequest.Status.FULFILLED]
     ).order_by('-created_at')[:10]
     
@@ -210,13 +244,16 @@ def recipient_dashboard(request):
         status__in=[MedicineRequest.Status.MATCHED, MedicineRequest.Status.FULFILLED]
     ).select_related('matched_donation', 'matched_donation__donor').order_by('-reviewed_at')
     
-    # Claimed medicines
+    # Claimed medicines (only approved ones)
     claimed_medicines = user_requests.filter(
+        approval_status=MedicineRequest.ApprovalStatus.APPROVED,
         status=MedicineRequest.Status.CLAIMED
     ).order_by('-created_at')[:10]
     
     context.update({
         'total_requests': total_requests,
+        'pending_approval_requests': pending_approval_requests,
+        'pending_approval_count': pending_approval_requests.count(),
         'pending_requests': pending_requests,
         'fulfilled_requests': fulfilled_requests,
         'claimed_count': claimed_count,
