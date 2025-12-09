@@ -52,6 +52,26 @@ def admin_dashboard(request):
         approval_status=MedicineRequest.ApprovalStatus.APPROVED
     ).select_related('recipient', 'reviewed_by').order_by('-reviewed_at')[:5]
     
+    # Get completed pickups (where donor delivered and recipient claimed)
+    completed_pickups_requests = MedicineRequest.objects.filter(
+        status=MedicineRequest.Status.CLAIMED,
+        matched_donation__isnull=False
+    ).select_related('recipient', 'matched_donation__donor').order_by('-updated_at')
+    
+    # Build pickup data with all necessary information
+    completed_pickups_list = []
+    for med_request in completed_pickups_requests:
+        if med_request.matched_donation and med_request.matched_donation.status == Donation.Status.DELIVERED:
+            completed_pickups_list.append({
+                'medicine_name': med_request.medicine_name,
+                'quantity': med_request.quantity,
+                'donor_name': med_request.matched_donation.donor.get_full_name() if med_request.matched_donation.donor else 'Anonymous',
+                'recipient_name': med_request.recipient.get_full_name(),
+                'delivered_date': med_request.matched_donation.last_update,
+                'claimed_date': med_request.updated_at,
+                'tracking_code': med_request.tracking_code,
+            })
+    
     context = {
         'pending_donations': pending_donations,
         'pending_requests': pending_requests,
@@ -66,6 +86,9 @@ def admin_dashboard(request):
         
         'recent_approved_donations': recent_approved_donations,
         'recent_approved_requests': recent_approved_requests,
+        
+        'completed_pickups': len(completed_pickups_list),
+        'completed_pickups_list': completed_pickups_list,
     }
     
     return render(request, 'healthbridge_app/admin_dashboard.html', context)

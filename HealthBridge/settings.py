@@ -149,6 +149,15 @@ DATABASES = {
 }
 
 
+# Session Configuration - Enhanced Security & Performance
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Database-backed sessions (scalable for production)
+SESSION_COOKIE_AGE = 1209600  # 2 weeks (1,209,600 seconds)
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access (XSS protection)
+SESSION_COOKIE_SECURE = not DEBUG  # HTTPS only in production (man-in-the-middle protection)
+SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF protection while maintaining usability
+SESSION_SAVE_EVERY_REQUEST = False  # Performance: only save on session modification
+
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

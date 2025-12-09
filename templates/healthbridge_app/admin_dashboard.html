@@ -17,6 +17,7 @@
         </div>
         <ul class="sidebar-menu">
             <li><a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="javascript:void(0);" onclick="openPickupsModal()"><i class="fas fa-handshake"></i> Pick ups</a></li>
             <li><a href="javascript:void(0);" onclick="openGuidelinesModal()"><i class="fas fa-book"></i> Guidelines</a></li>
             <li><a href="{% url 'landing:home' %}"><i class="fas fa-home"></i> Main Site</a></li>
             <li><a href="/admin/"><i class="fas fa-cog"></i> Django Admin</a></li>
@@ -68,6 +69,15 @@
                 </div>
                 <div class="stat-card-value">{{ approved_requests }}</div>
                 <div class="stat-card-label">Total approved (Click to view)</div>
+            </div>
+
+            <div class="stat-card info clickable" onclick="openPickupsModal()" title="Click to view completed pick ups">
+                <div class="stat-card-header">
+                    <h3>Completed Pick ups</h3>
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="stat-card-value">{{ completed_pickups }}</div>
+                <div class="stat-card-label">Successfully delivered (Click to view)</div>
             </div>
         </div>
 
@@ -508,6 +518,76 @@
         </div>
     </div>
 
+    <!-- Pick ups Modal -->
+    <div id="pickupsModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-handshake"></i> Completed Pick ups</h3>
+                <button class="modal-close" onclick="closeModal('pickupsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 20px; color: #64748b; font-size: 0.9375rem;">
+                    This section shows all successfully completed transactions where donors have delivered medicines and recipients have claimed them.
+                </p>
+                
+                {% if completed_pickups_list %}
+                <div class="pickups-container">
+                    {% for pickup in completed_pickups_list %}
+                    <div class="pickup-card">
+                        <div class="pickup-header">
+                            <div class="pickup-medicine">
+                                <h4>{{ pickup.medicine_name }}</h4>
+                                <span class="pickup-quantity">Quantity: {{ pickup.quantity }}</span>
+                            </div>
+                            <div class="pickup-status">
+                                <span class="badge-completed"><i class="fas fa-check-circle"></i> Completed</span>
+                            </div>
+                        </div>
+                        
+                        <div class="pickup-details">
+                            <div class="pickup-detail-row">
+                                <div class="pickup-detail-item">
+                                    <span class="detail-label"><i class="fas fa-user"></i> Donor</span>
+                                    <span class="detail-value">{{ pickup.donor_name }}</span>
+                                </div>
+                                <div class="pickup-detail-item">
+                                    <span class="detail-label"><i class="fas fa-user-injured"></i> Recipient</span>
+                                    <span class="detail-value">{{ pickup.recipient_name }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="pickup-detail-row">
+                                <div class="pickup-detail-item">
+                                    <span class="detail-label"><i class="fas fa-truck"></i> Delivered On</span>
+                                    <span class="detail-value">{{ pickup.delivered_date|date:"M d, Y" }}</span>
+                                </div>
+                                <div class="pickup-detail-item">
+                                    <span class="detail-label"><i class="fas fa-calendar-check"></i> Claimed On</span>
+                                    <span class="detail-value">{{ pickup.claimed_date|date:"M d, Y" }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="pickup-detail-row">
+                                <div class="pickup-detail-item full-width">
+                                    <span class="detail-label"><i class="fas fa-barcode"></i> Tracking Code</span>
+                                    <span class="detail-value tracking-code">{{ pickup.tracking_code }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No completed pick ups yet</p>
+                    <small style="color: #9ca3af;">Completed transactions will appear here when donors deliver and recipients claim medicines</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
     <!-- Messages -->
     <div class="messages">
         {% if messages %}
@@ -531,6 +611,13 @@
                 console.log('Show class added');
             } else {
                 console.error('Modal element not found!');
+            }
+        }
+        
+        function openPickupsModal() {
+            const modal = document.getElementById('pickupsModal');
+            if (modal) {
+                modal.classList.add('show');
             }
         }
     </script>
