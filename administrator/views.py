@@ -4,7 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.http import JsonResponse
-from django.db.models import Q, Count
+from django.db import models
+from django.db.models import Q, Count, Case, When
 import logging
 
 from donations.models import Donation
@@ -28,9 +29,21 @@ def admin_dashboard(request):
         approval_status=Donation.ApprovalStatus.PENDING
     ).select_related('donor').order_by('-donated_at')
     
+    # Get pending requests - sorted by urgency (critical first), then by date
     pending_requests = MedicineRequest.objects.filter(
         approval_status=MedicineRequest.ApprovalStatus.PENDING
-    ).select_related('recipient', 'matched_donation__donor').order_by('-created_at')
+    ).select_related('recipient', 'matched_donation__donor').order_by(
+        # Custom urgency ordering: critical -> high -> medium -> low
+        Case(
+            When(urgency='critical', then=1),
+            When(urgency='high', then=2),
+            When(urgency='medium', then=3),
+            When(urgency='low', then=4),
+            default=5,
+            output_field=models.IntegerField(),
+        ),
+        'created_at'  # Within same urgency, oldest first (FIFO)
+    )
     
     # Get statistics
     total_donations = Donation.objects.count()
