@@ -203,27 +203,32 @@ def approve_request(request, request_id):
         try:
             claim_date_str = request.POST.get('claim_ready_date', '').strip()
             
+            # Validate that claim_ready_date is provided
+            if not claim_date_str:
+                messages.error(request, 'Claim ready date is required when approving a request.')
+                return redirect('admin_dashboard')
+            
+            # Parse and validate the date
+            try:
+                claim_date = date.fromisoformat(claim_date_str)
+                # Ensure date is not in the past
+                if claim_date < date.today():
+                    messages.error(request, 'Claim ready date cannot be in the past.')
+                    return redirect('admin_dashboard')
+            except ValueError:
+                messages.error(request, 'Invalid date format. Please provide a valid claim ready date.')
+                return redirect('admin_dashboard')
+            
             medicine_request.approval_status = MedicineRequest.ApprovalStatus.APPROVED
             medicine_request.reviewed_by = request.user
             medicine_request.reviewed_at = timezone.now()
-            
-            # Set claim ready date if provided
-            claim_date = None
-            if claim_date_str:
-                try:
-                    claim_date = date.fromisoformat(claim_date_str)
-                    medicine_request.claim_ready_date = claim_date
-                except ValueError:
-                    messages.warning(request, 'Invalid date format. Request approved without claim date.')
+            medicine_request.claim_ready_date = claim_date
             
             medicine_request.save()
             
-            # Create notification for recipient
+            # Create notification for recipient (claim_date is always set now)
             if medicine_request.recipient:
-                if claim_date:
-                    message = f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} has been approved! You can claim it on {claim_date.strftime("%B %d, %Y")}.'
-                else:
-                    message = f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} has been approved! Contact the clinic for claim details.'
+                message = f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} has been approved! You can claim it on {claim_date.strftime("%B %d, %Y")}.'
                 
                 Notification.objects.create(
                     user=medicine_request.recipient,
@@ -237,26 +242,15 @@ def approve_request(request, request_id):
             if medicine_request.matched_donation and medicine_request.matched_donation.donor:
                 recipient_name = medicine_request.recipient.get_full_name() or medicine_request.recipient.username
                 
-                if claim_date:
-                    donor_message = (
-                        f'🚨 DELIVERY REQUIRED: The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
-                        f'from {recipient_name} has been approved by admin. '
-                        f'\n\n⚠️ YOU MUST DELIVER THIS MEDICINE ON OR BEFORE {claim_date.strftime("%B %d, %Y")}.'
-                        f'\n\nRecipient Contact: {medicine_request.recipient.email}'
-                        f'\nTracking Code: {medicine_request.tracking_code}'
-                        f'\n\nPlease coordinate with the recipient to arrange delivery.'
-                    )
-                    notification_title = f'⚠️ Delivery Required by {claim_date.strftime("%b %d")} - Action Needed!'
-                else:
-                    donor_message = (
-                        f'Good news! The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
-                        f'from {recipient_name} has been approved by admin. '
-                        f'\n\nPlease deliver this medicine as soon as possible.'
-                        f'\nRecipient Contact: {medicine_request.recipient.email}'
-                        f'\nTracking Code: {medicine_request.tracking_code}'
-                        f'\n\nCoordinate with the recipient for delivery arrangements.'
-                    )
-                    notification_title = 'Request Approved - Delivery Required 📦'
+                donor_message = (
+                    f'🚨 DELIVERY REQUIRED: The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
+                    f'from {recipient_name} has been approved by admin. '
+                    f'\n\n⚠️ YOU MUST DELIVER THIS MEDICINE ON OR BEFORE {claim_date.strftime("%B %d, %Y")}.'
+                    f'\n\nRecipient Contact: {medicine_request.recipient.email}'
+                    f'\nTracking Code: {medicine_request.tracking_code}'
+                    f'\n\nPlease coordinate with the recipient to arrange delivery.'
+                )
+                notification_title = f'⚠️ Delivery Required by {claim_date.strftime("%b %d")} - Action Needed!'
                 
                 Notification.objects.create(
                     user=medicine_request.matched_donation.donor,
