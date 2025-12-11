@@ -65,7 +65,8 @@ def admin_dashboard(request):
         approval_status=MedicineRequest.ApprovalStatus.APPROVED
     ).select_related('recipient', 'reviewed_by').order_by('-reviewed_at')[:5]
     
-    # Get completed pickups (where donor delivered and recipient claimed)
+    # Get completed pickups (where recipient claimed - which means it was delivered first then claimed)
+    # Note: Request status flow is MATCHED -> FULFILLED (delivered) -> CLAIMED
     completed_pickups_requests = MedicineRequest.objects.filter(
         status=MedicineRequest.Status.CLAIMED,
         matched_donation__isnull=False
@@ -74,16 +75,15 @@ def admin_dashboard(request):
     # Build pickup data with all necessary information
     completed_pickups_list = []
     for med_request in completed_pickups_requests:
-        if med_request.matched_donation and med_request.matched_donation.status == Donation.Status.DELIVERED:
-            completed_pickups_list.append({
-                'medicine_name': med_request.medicine_name,
-                'quantity': med_request.quantity,
-                'donor_name': med_request.matched_donation.donor.get_full_name() if med_request.matched_donation.donor else 'Anonymous',
-                'recipient_name': med_request.recipient.get_full_name(),
-                'delivered_date': med_request.matched_donation.last_update,
-                'claimed_date': med_request.updated_at,
-                'tracking_code': med_request.tracking_code,
-            })
+        completed_pickups_list.append({
+            'medicine_name': med_request.medicine_name,
+            'quantity': med_request.quantity,
+            'donor_name': med_request.matched_donation.donor.get_full_name() if med_request.matched_donation.donor else 'Anonymous',
+            'recipient_name': med_request.recipient.get_full_name(),
+            'delivered_date': med_request.matched_donation.last_update,
+            'claimed_date': med_request.updated_at,
+            'tracking_code': med_request.tracking_code,
+        })
     
     context = {
         'pending_donations': pending_donations,
@@ -196,34 +196,46 @@ def reject_donation(request, donation_id):
 
 @user_passes_test(is_admin, login_url='/login/')
 def approve_request(request, request_id):
-    """Approve a medicine request with optional claim ready date"""
+    """Approve a medicine request with required claim ready date"""
     medicine_request = get_object_or_404(MedicineRequest, id=request_id)
     
     if request.method == 'POST':
         try:
             claim_date_str = request.POST.get('claim_ready_date', '').strip()
             
+            # Validate that claim_ready_date is provided and valid
+            if not claim_date_str:
+                messages.error(request, 'Claim ready date is required to approve this request.')
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'Claim ready date is required'})
+                return redirect('admin_dashboard')
+            
+            try:
+                claim_date = date.fromisoformat(claim_date_str)
+                
+                # Validate that the date is not in the past
+                if claim_date < date.today():
+                    messages.error(request, 'Claim ready date cannot be in the past.')
+                    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                        return JsonResponse({'success': False, 'error': 'Claim ready date cannot be in the past'})
+                    return redirect('admin_dashboard')
+                    
+            except ValueError:
+                messages.error(request, 'Invalid date format. Please provide a valid date.')
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'Invalid date format'})
+                return redirect('admin_dashboard')
+            
             medicine_request.approval_status = MedicineRequest.ApprovalStatus.APPROVED
             medicine_request.reviewed_by = request.user
             medicine_request.reviewed_at = timezone.now()
-            
-            # Set claim ready date if provided
-            claim_date = None
-            if claim_date_str:
-                try:
-                    claim_date = date.fromisoformat(claim_date_str)
-                    medicine_request.claim_ready_date = claim_date
-                except ValueError:
-                    messages.warning(request, 'Invalid date format. Request approved without claim date.')
+            medicine_request.claim_ready_date = claim_date
             
             medicine_request.save()
             
-            # Create notification for recipient
+            # Create notification for recipient (claim_date is now always available)
             if medicine_request.recipient:
-                if claim_date:
-                    message = f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} has been approved! You can claim it on {claim_date.strftime("%B %d, %Y")}.'
-                else:
-                    message = f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} has been approved! Contact the clinic for claim details.'
+                message = f'Your request for {medicine_request.quantity}x {medicine_request.medicine_name} has been approved! You can claim it on {claim_date.strftime("%B %d, %Y")}.'
                 
                 Notification.objects.create(
                     user=medicine_request.recipient,
@@ -237,26 +249,15 @@ def approve_request(request, request_id):
             if medicine_request.matched_donation and medicine_request.matched_donation.donor:
                 recipient_name = medicine_request.recipient.get_full_name() or medicine_request.recipient.username
                 
-                if claim_date:
-                    donor_message = (
-                        f'🚨 DELIVERY REQUIRED: The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
-                        f'from {recipient_name} has been approved by admin. '
-                        f'\n\n⚠️ YOU MUST DELIVER THIS MEDICINE ON OR BEFORE {claim_date.strftime("%B %d, %Y")}.'
-                        f'\n\nRecipient Contact: {medicine_request.recipient.email}'
-                        f'\nTracking Code: {medicine_request.tracking_code}'
-                        f'\n\nPlease coordinate with the recipient to arrange delivery.'
-                    )
-                    notification_title = f'⚠️ Delivery Required by {claim_date.strftime("%b %d")} - Action Needed!'
-                else:
-                    donor_message = (
-                        f'Good news! The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
-                        f'from {recipient_name} has been approved by admin. '
-                        f'\n\nPlease deliver this medicine as soon as possible.'
-                        f'\nRecipient Contact: {medicine_request.recipient.email}'
-                        f'\nTracking Code: {medicine_request.tracking_code}'
-                        f'\n\nCoordinate with the recipient for delivery arrangements.'
-                    )
-                    notification_title = 'Request Approved - Delivery Required 📦'
+                donor_message = (
+                    f'🚨 DELIVERY REQUIRED: The request for {medicine_request.quantity}x {medicine_request.medicine_name} '
+                    f'from {recipient_name} has been approved by admin. '
+                    f'\n\n⚠️ YOU MUST DELIVER THIS MEDICINE ON OR BEFORE {claim_date.strftime("%B %d, %Y")}.'
+                    f'\n\nRecipient Contact: {medicine_request.recipient.email}'
+                    f'\nTracking Code: {medicine_request.tracking_code}'
+                    f'\n\nPlease coordinate with the recipient to arrange delivery.'
+                )
+                notification_title = f'⚠️ Delivery Required by {claim_date.strftime("%b %d")} - Action Needed!'
                 
                 Notification.objects.create(
                     user=medicine_request.matched_donation.donor,
