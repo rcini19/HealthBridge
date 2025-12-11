@@ -213,9 +213,9 @@
             <form id="approveRequestForm" method="POST">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label>Claim Ready Date (Optional):</label>
-                    <input type="date" name="claim_ready_date" min="{{ today|date:'Y-m-d' }}">
-                    <small style="color: #6b7280;">When will the medicine be ready for claiming?</small>
+                    <label>Claim Ready Date <span style="color: #ef4444;">*</span></label>
+                    <input type="date" name="claim_ready_date" min="{{ today|date:'Y-m-d' }}" required>
+                    <small style="color: #6b7280;">When will the medicine be ready for claiming? (Required)</small>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-cancel" onclick="closeModal('approveRequestModal')">Cancel</button>

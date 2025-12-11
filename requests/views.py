@@ -271,18 +271,17 @@ def deliver_medicine(request, pk):
             donation.quantity -= requested_qty
             print(f"✅ Delivered! Subtracting {requested_qty} from donation. New quantity: {donation.quantity}")
             
-            # If quantity reaches zero or below, mark as DELIVERED
-            # If quantity still remains, set back to AVAILABLE for others to request
+            # Update donation status based on remaining quantity
             if donation.quantity <= 0:
                 donation.status = Donation.Status.DELIVERED
-                print(f"Donation quantity is now 0 - marking as DELIVERED")
+                print(f"Donation fully delivered (quantity 0) - marking as DELIVERED")
             else:
                 donation.status = Donation.Status.AVAILABLE
-                print(f"Donation still has {donation.quantity} remaining - marking as AVAILABLE")
+                print(f"Donation still has {donation.quantity} remaining - keeping as AVAILABLE")
             
             donation.save()
         
-        # Update request status to fulfilled
+        # Update request status to fulfilled (delivered)
         medicine_request.status = MedicineRequest.Status.FULFILLED
         medicine_request.save()
         
